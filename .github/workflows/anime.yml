@@ -21,7 +21,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-            - name: 📝 Commit and push with PAT
+      - name: 📝 Commit and push with PAT
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
