@@ -3,7 +3,7 @@ name: ⭐ Update Anime Data
 on:
   schedule:
     - cron: "0 0 * * 0"  # Every Sunday at 12:00 AM
-  workflow_dispatch:     # Manual run from GitHub UI
+  workflow_dispatch:     # Manual trigger from GitHub UI
 
 jobs:
   update:
@@ -20,6 +20,9 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm install
+
+      - name: 🔁 Fetch updated data
+        run: npm run fetch
 
       - name: 📝 Commit and push with PAT
         env:
