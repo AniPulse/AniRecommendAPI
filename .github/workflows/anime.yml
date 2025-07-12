@@ -2,8 +2,8 @@ name: ⭐ Update Anime Data
 
 on:
   schedule:
-    - cron: "0 0 * * 0"
-  workflow_dispatch:
+    - cron: "0 0 * * 0"  # Every Sunday at 12:00 AM
+  workflow_dispatch:     # Manual run from GitHub UI
 
 jobs:
   update:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - name: 🧰 Setup Node.js
         uses: actions/setup-node@v4
@@ -21,16 +23,10 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🔁 Fetch updated data
-        run: npm run fetch
-
-      - name: 📝 Commit and push with PAT
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+      - name: 📝 Commit and push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Shineii86/AniRecommendAPI.git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/anime.json
           git commit -m "🚀 Update anime.json (auto-update)" || echo "🌻 No changes"
           git push
