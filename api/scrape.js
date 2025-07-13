@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const key = query?.key;
 
   if (key !== "Quinx") {
-    return res.status(401).json({ error: "Invalid API Key" });
+    return res.status(401).json({ error: "👀 Invalid ${API_KEY}" });
   }
 
   let allAnime = [];
