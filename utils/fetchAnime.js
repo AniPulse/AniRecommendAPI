@@ -5,10 +5,7 @@ export async function fetchAnimeData(page) {
     query ($page: Int) {
       Page(page: $page, perPage: 50) {
         media(type: ANIME, sort: POPULARITY_DESC) {
-          title {
-            romaji
-            native
-          }
+          title { romaji native }
           episodes
           duration
           status
@@ -20,11 +17,9 @@ export async function fetchAnimeData(page) {
       }
     }`;
 
-  const variables = { page };
-
   const res = await axios.post("https://graphql.anilist.co", {
     query,
-    variables,
+    variables: { page },
   });
 
   return res.data.data.Page.media.map((anime) => ({
@@ -34,8 +29,8 @@ export async function fetchAnimeData(page) {
     episodes: anime.episodes || 0,
     duration: anime.duration ? `${anime.duration} Per Ep.` : "Unknown",
     score: anime.averageScore || 0,
-    genres: anime.genres || [],
+    genres: anime.genres,
     studios: anime.studios.nodes.map((s) => s.name),
-    image: anime.coverImage.large
+    image: anime.coverImage.large,
   }));
 }
