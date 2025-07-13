@@ -1,13 +1,16 @@
-const data = require("../../data/anime.json");
+import data from "../../data/anime.json" assert { type: "json" };
 
 export default function handler(req, res) {
-  const genre = decodeURIComponent(req.query.genre);
-  const filtered = data.filter(a =>
-    a.genres.map(g => g.toLowerCase()).includes(genre.toLowerCase())
+  const genre = decodeURIComponent(req.query.genre || "");
+  const filtered = data.filter((a) =>
+    a.genres.map((g) => g.toLowerCase()).includes(genre.toLowerCase())
   );
 
   const anime = filtered[Math.floor(Math.random() * filtered.length)];
-  if (!anime) return res.status(404).json({ error: "Genre not found" });
+
+  if (!anime) {
+    return res.status(404).json({ error: "Genre not found" });
+  }
 
   res.json({
     ...anime,
@@ -16,6 +19,9 @@ export default function handler(req, res) {
     github: "https://github.com/Shineii86",
     telegram: "https://telegran.me/Shineii86",
     message: "Build with ❤️ by Shinei Nouzen",
-    timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+    timestamp: new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour12: true
+    })
   });
 }
