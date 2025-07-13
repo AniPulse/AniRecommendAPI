@@ -4,7 +4,7 @@
 
 *A serverless REST API to discover anime recommendations — random, genre-based, or format-filtered — powered by AniList.*
 
-![Anime Count](https://anirecommend.vercel.app/api/badge)
+[![Anime Count](https://img.shields.io/endpoint?url=https://anirecommend.vercel.app/api/badge)](https://anirecommend.vercel.app/api/badge)
 
 
 [![Deploy](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://anirecommend.vercel.app)
