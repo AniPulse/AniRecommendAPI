@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const OWNER = "Shineii86"; // Your GitHub Org/Username
-const REPO = "AniRecommendAPI";  // Your Github Repo Name
+const OWNER = "Shineii86";
+const REPO = "AniRecommendAPI";
 const FILE_PATH = "data/anime.json";
 
 export async function updateAnimeJsonOnGitHub(newAnimeList) {
@@ -18,7 +18,6 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
 
     sha = data.sha;
 
-    // Gracefully parse existing data
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
     existing = content.trim() ? JSON.parse(content) : [];
   } catch (err) {
@@ -32,19 +31,9 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
 
   const existingTitles = new Set(existing.map((a) => a.title));
 
-  const newEntries = newAnimeList
-    .filter((a) => !existingTitles.has(a.title))
-    .map((anime) => ({
-      ...anime,
-      creator: "Shinei Nouzen",
-      github: "https://github.com/Shineii86",
-      telegram: "https://telegran.me/Shineii86",
-      message: "Build with ❤️ by Shinei Nouzen",
-      timestamp: new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-        hour12: true,
-      }),
-    }));
+  const newEntries = newAnimeList.filter(
+    (a) => !existingTitles.has(a.title)
+  );
 
   if (newEntries.length === 0) return 0;
 
