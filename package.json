@@ -1,11 +1,13 @@
 {
-  "name": "anirecommendapi",
+  "name": "anime-scraper-api",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "fetch": "node scripts/fetchFromAniList.js"
   },
   "dependencies": {
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "fs-extra": "^11.1.1"
   }
 }
