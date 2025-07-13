@@ -1,32 +1,27 @@
 import { fetchAnimeData } from "../utils/fetchAnime.js";
-import { saveUniqueAnime } from "../utils/saveAnime.js";
+import { updateAnimeJsonOnGitHub } from "../utils/updateGitHub.js";
 
 export default async function handler(req, res) {
-  const { query } = req;
-  const key = query?.key;
-
-  if (key !== "Quinx") {
-    return res.status(401).json({ error: "👀 Invalid ${API_KEY}" });
+  const key = req.query.key;
+  if (key !== process.env.API_KEY) {
+    return res.status(401).json({ error: "👀 Invalid API KEY" });
   }
 
   let allAnime = [];
 
-  for (let i = 1; i <= 100; i++) {
+  for (let page = 1; page <= 100; page++) {
     try {
-      const pageData = await fetchAnimeData(i);
-      allAnime.push(...pageData);
+      const data = await fetchAnimeData(page);
+      allAnime.push(...data);
     } catch (err) {
-      console.error(`Page ${i} failed`, err.message);
+      console.log(`Page ${page} failed`, err.message);
       break;
     }
   }
 
-  const newCount = await saveUniqueAnime(allAnime);
+  const added = await updateAnimeJsonOnGitHub(allAnime);
 
   res.json({
-    status: "success",
-    added: newCount,
-    totalScraped: allAnime.length,
-    message: `🚀 Scraped & added ${newCount} new anime to anime.json`
+    message: `✅ Scraped ${allAnime.length} anime. Added ${added} new entries to GitHub.`,
   });
 }
