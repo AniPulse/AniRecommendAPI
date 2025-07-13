@@ -1,92 +1,209 @@
+<div align="center">
+   
 # AniRecommendAPI
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FShineii86%2Fanirecommendapi)
+*A serverless REST API to discover anime recommendations — random, genre-based, or format-filtered — powered by AniList.*
 
-> REST API for discovering random anime recommendations
+![Anime Count](https://anirecommend.vercel.app/api/badge)
 
-## Features ✨
-- Get random anime recommendations
-- Filter by genre
-- Dual API versions (with/without images)
-- Auto-updated anime database
-- Serverless architecture
-- Free to deploy
 
-## Quick Start 🚀
+[![Deploy](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://anirecommend.vercel.app)
+[![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen)](CONTRIBUTING.md)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+
+![Last Commit](https://img.shields.io/github/last-commit/Shineii86/AniRecommendAPI?style=for-the-badge)
+![Repo Size](https://img.shields.io/github/repo-size/Shineii86/AniRecommendAPI?style=for-the-badge) [![GitHub Stars](https://img.shields.io/github/stars/Shineii86/AniRecommendAPIAPI?style=for-the-badge)](https://github.com/Shineii86/AniRecommendAPI/stargazers) [![GitHub Forks](https://img.shields.io/github/forks/Shineii86/AniRecommendAPIAPI?style=for-the-badge)](https://github.com/Shineii86/AniRecommendAPI/fork)
+[![API Status](https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=API%20Status&style=for-the-badge&up_color=green&up_message=online&url=https%3A%2F%2Fanirecommend.vercel.app)](https://anirecommend.vercel.app)
+
+</div>
+
+---
+
+## ✨ Features
+
+- 🎲 Get random anime recommendations
+- 🎯 Filter by genre (`/genre?genre=Action`)
+- 🖼️ Dual API versions (with or without image)
+- 📺 Filter by anime format (`TV`, `MOVIE`, `OVA`, etc.)
+- 🧠 Smart scraper with no duplicates
+- ☁️ GitHub-based auto JSON store
+- 🆓 100% free to deploy on Vercel
+
+---
+
+## 🚀 Quick Usage
+
 ```bash
-# Get random anime (v2 with image)
-curl https://anirecommend.vercel.app/api/v2/random
+# Get random anime
+curl https://anirecommend.vercel.app/api/v1/random
 
-# Get action genre anime (v1)
-curl https://anirecommend.vercel.app/api/v1/genre?genre=action
-```
+# Get action anime with image
+curl https://anirecommend.vercel.app/api/v2/genre?genre=Action
 
-## API Endpoints 🌐
-| Version | Endpoint                   | Description                |
-|---------|----------------------------|----------------------------|
-| v1      | `/api/v1/random`           | Random anime (no image)    |
-| v1      | `/api/v1/genre?genre={name}`| Genre-specific (no image) |
-| v2      | `/api/v2/random`           | Random anime (with image) |
-| v2      | `/api/v2/genre?genre={name}`| Genre-specific (with image)|
+# Get random anime MOVIE format
+curl https://anirecommend.vercel.app/api/v3/format?format=MOVIE
+````
 
-## Deployment Guide 🛠️
+---
 
-### Step 1: Fork Repository
-1. Click "Fork" at top-right of [GitHub repository](https://github.com/Shineii86/anime-recommend-api)
-2. Select your account as destination
+## 🌐 API Endpoints
 
-### Step 2: Deploy to Vercel
-1. Click this button:  
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fshineii86%2Fanirecommendapi)
-2. Sign in with GitHub account
-3. Select your forked repository
-4. Click "Deploy"
+| Version | Endpoint | Description |
+| ------- | -------- | ----------- |
+| v1      | `/api/v1/random` | Random anime (no image) |
+| v1      | `/api/v1/genre?genre={name}` | Genre-specific anime (no image) |
+| v2      | `/api/v2/random` | Random anime (with image) |
+| v2      | `/api/v2/genre?genre={name}` | Genre-specific (with image)                       |
+| v3      | `/api/v3/format?format={type}` | Format-specific anime |
+| anime | `/api/anime` | Returns all anime entries in the database |
+| scrape  | `/api/scrape?key=API_KEY` | Admin route to scrape AniList API |
 
-### Step 3: Verify Deployment
-1. Visit `https://your-project-name.vercel.app/api/v2/random`
-2. You should see JSON data for a random anime
+> All query values are case-insensitive (e.g., `action`, `Action`, `ACTION` work the same).
 
-### Step 4 (Optional): Configure GitHub Actions
-1. In your repository, go to Settings → Actions → General
-2. Under "Workflow permissions", select "Read and write permissions"
-3. Click "Save"
 
-Your API is now live! 🎉
+### 🔥 Anime API Endpoints
 
-## Customization 🔧
-- Modify `scripts/fetchFromAniList.js` to change data fetching:
-  - Adjust `perPage` for more results
-  - Change sorting criteria
-  - Modify fields selection
-- Edit API handlers in `api/` directories to:
-  - Change response format
-  - Add new metadata
-  - Modify filtering logic
+| Endpoint | Description | Parameters |
+|----------|-------------|------------|
+| `GET /api/anime?genre={genre}` | Filters anime by specific genre | `genre`: Action, Adventure, Comedy, etc. |
+| `GET /api/anime?format={type}` | Filters anime by media type | `format`: TV, Movie, OVA, ONA, Special |
+| `GET /api/anime?genre={genre}&format={type}` | Filters by both genre and media type | Combination of above parameters |
 
-## Examples 🌟
+---
+
+## 🔐 Environment Variables
+
+Set these on [Vercel](https://vercel.com) → Project → Settings → Environment Variables:
+
+| Key       | Value             | Description                         |
+| --------- | ----------------- | ----------------------------------- |
+| `GH_PAT`  | Your GitHub token | Allows writing to `data/anime.json` |
+| `API_KEY` | `API KEY` | Secures `/api/scrape` route|
+
+---
+
+## 🎯 Supported Genres
+
+| Endpoint for v1 & v2 | Description |  
+| :------ | :---------- |  
+| `/api/v1/genre?genre=Action` | Returns anime with intense physical combat, battles, or fast-paced plots. |  
+| `/api/v1/genre?genre=Adventure` | Features anime centered around exploration, travel, or quests. |  
+| `/api/v1/genre?genre=Comedy` | Lighthearted anime focused on humor and funny situations. |  
+| `/api/v1/genre?genre=Drama` | Emotional, character-driven stories with serious themes. |  
+| `/api/v1/genre?genre=Fantasy` | Anime set in magical worlds or with supernatural elements. |  
+| `/api/v1/genre?genre=Horror` | Scary or unsettling anime, often with supernatural threats. |  
+| `/api/v1/genre?genre=Mystery` | Anime involving puzzles, secrets, or investigative plots. |  
+| `/api/v1/genre?genre=Romance` | Focuses on love stories and romantic relationships. |  
+| `/api/v1/genre?genre=Sci-Fi` | Futuristic technology, space travel, or scientific themes. |  
+| `/api/v1/genre?genre=Supernatural` | Anime with ghosts, spirits, or otherworldly phenomena. |  
+| `/api/v1/genre?genre=Slice of Life` | Everyday life stories with minimal fantastical elements. |  
+| `/api/v1/genre?genre=Psychological` | Mind-bending narratives exploring mental states or illusions. |  
+| `/api/v1/genre?genre=Ecchi` | Anime with playful, risqué humor and mild fanservice. |  
+| `/api/v1/genre?genre=Mecha` | Features giant robots or mechanized suits. |  
+| `/api/v1/genre?genre=Thriller` | High-stakes tension, suspense, or danger-driven plots. |  
+| `/api/v1/genre?genre=Sports` | Anime centered around competitive sports or athletics. |  
+| `/api/v1/genre?genre=Music` | Focuses on musicians, bands, or music-related stories. |  
+| `/api/v1/genre?genre=Martial Arts` | Combat-focused anime emphasizing fighting techniques. |  
+| `/api/v1/genre?genre=Game` | Anime involving video games, game worlds, or players. |  
+| `/api/v1/genre?genre=Shounen` | Targets young male audiences; action-packed or friendship themes. |  
+| `/api/v1/genre?genre=Seinen` | Anime for adult men, often darker or more mature. |  
+| `/api/v1/genre?genre=Shoujo` | Targets young female audiences; romance or personal growth. |  
+| `/api/v1/genre?genre=Josei` | Anime for adult women, often realistic or dramatic. |  
+| `/api/v1/genre?genre=Super Power` | Characters with unique abilities or superhuman traits. |  
+| `/api/v1/genre?genre=Magic` | Anime where magic is a central element. |  
+| `/api/v1/genre?genre=Demons` | Features demons, demon hunters, or underworld themes. |  
+| `/api/v1/genre?genre=Historical` | Set in a specific historical period or inspired by real events. |  
+| `/api/v1/genre?genre=Military` | Focuses on warfare, soldiers, or military strategy. |  
+| `/api/v1/genre?genre=Parody` | Humorous anime that satirizes other works or tropes. |  
+| `/api/v1/genre?genre=Police` | Crime-solving, detective work, or law enforcement themes. |  
+| `/api/v1/genre?genre=Space` | Set in outer space or involving interstellar travel. |  
+| `/api/v1/genre?genre=Vampire` | Anime centered around vampires or vampiric lore. |  
+
+## 📺 Supported Formats
+
+| Endpoint | Description |
+| :------ | :---------- |
+| `/api/v3/format?type=TV` | **TV Series** - Episodic anime aired on television with standard episode lengths (20-24 mins). |
+| `/api/v3/format?type=MOVIE` | **Movie** - Feature-length anime films (typically 60+ mins), often with cinematic production quality. |
+| `/api/v3/format?type=OVA` | **Original Video Animation** - Direct-to-video releases, often higher-budget or experimental (1-6 episodes). |
+| `/api/v3/format?type=ONA` | **Original Net Animation** - Web-distributed anime, usually shorter or with unconventional formats. |
+| `/api/v3/format?type=SPECIAL` | **Special** - Bonus content (recaps, shorts, or side stories) tied to existing series. |
+
+**Example Request:**  
+
+GET `/api/v3/format?type=MOVIE`
+
+## 📦 Sample Response
+
 ```json
 {
   "title": "Demon Slayer (鬼滅の刃)",
+  "description": "Tanjiro Kamado is a kindhearted boy...",
   "type": "ANIME",
   "status": "FINISHED",
+  "format": "TV",
   "episodes": 26,
   "duration": "24 Per Ep.",
   "score": 85,
   "genres": ["Action", "Supernatural", "Fantasy"],
   "studios": ["ufotable"],
-  "image": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-PEn1CTc93blC.jpg",
-  "creator": "Shinei Nouzen",
-  "github": "https://github.com/Shineii86",
-  "telegram": "https://telegran.me/Shineii86",
-  "message": "Build with ❤️ by Shinei Nouzen",
-  "timestamp": "2025-07-12 14:30:45"
+  "image": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922.jpg"
 }
 ```
 
-## Support 💬
-For issues and feature requests:
-- [Open GitHub Issue](https://github.com/Shineii86/anime-recommend-api/issues)
-- Contact via [Telegram](https://telegran.me/Shineii86)
+---
 
-## License 📄
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+## 🛠 Deployment Guide
+
+### 📌 Step 1: Fork this Repository
+
+```bash
+https://github.com/Shineii86/AniRecommendAPI
+```
+
+### 🚀 Step 2: Deploy with Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FShineii86%2Fanirecommendapi)
+
+* Connect GitHub → Choose the forked repo
+* Set `GH_PAT` and `API_KEY` under Vercel Environment Variables
+* Click **Deploy**
+
+### ✅ Step 3: Test it!
+
+```bash
+https://your-project.vercel.app/api/v1/random
+```
+
+---
+
+## 📬 Support
+
+* Issues: [GitHub Issues](https://github.com/Shineii86/AniRecommendAPI/issues)
+
+## 🪪 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 💕 Loved My Work?
+🚨 [Follow me on GitHub](https://github.com/Shineii86/Shineii86)
+
+⭐ [Give a star to this project](https://github.com/Shineii86/AniRecommendAPI/)
+
+<a href="https://github.com/Shineii86/AniRecommendAPI">
+<img src="https://github.com/Shineii86/AniPay/blob/main/Source/Banner6.png" alt="Banner">
+</a>
+
+## ☎️ Contact
+
+<div align="center">
+  
+  *For inquiries or collaborations*
+     
+[![Telegram Badge](https://img.shields.io/badge/-Telegram-2CA5E0?style=flat&logo=Telegram&logoColor=white)](https://telegram.me/Shineii86 "Contact on Telegram")
+[![Instagram Badge](https://img.shields.io/badge/-Instagram-C13584?style=flat&logo=Instagram&logoColor=white)](https://instagram.com/ikx7.a "Follow on Instagram")
+[![Pinterest Badge](https://img.shields.io/badge/-Pinterest-E60023?style=flat&logo=Pinterest&logoColor=white)](https://pinterest.com/ikx7a "Follow on Pinterest")
+[![Gmail Badge](https://img.shields.io/badge/-Gmail-D14836?style=flat&logo=Gmail&logoColor=white)](mailto:ikx7a@hotmail.com "Send an Email")
+
+  <sup><b>Copyright © 2025 <a href="https://telegram.me/Shineii86">Shinei Nouzen</a> All Rights Reserved</b></sup>
+
+</div>
