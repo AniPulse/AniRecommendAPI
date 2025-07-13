@@ -11,7 +11,7 @@ export default function handler(req, res) {
   const filtered = data.filter((a) => (a.format || "").toUpperCase() === userFormat);
 
   if (!filtered.length) {
-    return res.status(404).json({ error: "Format not found. Try TV, MOVIE, OVA, etc." });
+    return res.status(404).json({ error: "🚨 Format Type Not Found. Try TV, MOVIE, OVA, etc." });
   }
 
   const anime = filtered[Math.floor(Math.random() * filtered.length)];
