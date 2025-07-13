@@ -10,6 +10,7 @@ export async function fetchAnimeData(page) {
           episodes
           duration
           status
+          format
           averageScore
           genres
           studios { nodes { name } }
@@ -27,6 +28,7 @@ export async function fetchAnimeData(page) {
     title: `${anime.title.romaji} (${anime.title.native})`,
     description: anime.description?.replace(/<[^>]+>/g, "") || "No description available",
     type: "ANIME",
+    format: anime.format || "UNKNOWN",
     status: anime.status,
     episodes: anime.episodes || 0,
     duration: anime.duration ? `${anime.duration} Per Ep.` : "Unknown",
