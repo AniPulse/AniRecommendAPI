@@ -6,6 +6,7 @@ export async function fetchAnimeData(page) {
       Page(page: $page, perPage: 50) {
         media(type: ANIME, sort: POPULARITY_DESC) {
           title { romaji native }
+          description(asHtml: false)
           episodes
           duration
           status
@@ -24,6 +25,7 @@ export async function fetchAnimeData(page) {
 
   return res.data.data.Page.media.map((anime) => ({
     title: `${anime.title.romaji} (${anime.title.native})`,
+    description: anime.description?.replace(/<[^>]+>/g, "") || "No description available",
     type: "ANIME",
     status: anime.status,
     episodes: anime.episodes || 0,
