@@ -1,9 +1,15 @@
-import data from "../../data/anime.json" assert { type: "json" };
+import fs from "fs";
+import path from "path";
 
 export default function handler(req, res) {
-  const genre = decodeURIComponent(req.query.genre || "");
+  const genre = decodeURIComponent(req.query.genre || "").toLowerCase();
+
+  const filePath = path.join(process.cwd(), "data", "anime.json");
+  const rawData = fs.readFileSync(filePath, "utf8");
+  const data = JSON.parse(rawData);
+
   const filtered = data.filter((a) =>
-    a.genres.map((g) => g.toLowerCase()).includes(genre.toLowerCase())
+    a.genres.map((g) => g.toLowerCase()).includes(genre)
   );
 
   const anime = filtered[Math.floor(Math.random() * filtered.length)];
