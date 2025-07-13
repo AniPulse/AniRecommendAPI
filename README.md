@@ -41,7 +41,7 @@ curl https://anirecommend.vercel.app/api/v1/random
 curl https://anirecommend.vercel.app/api/v2/genre?genre=Action
 
 # Get random anime MOVIE format
-curl https://anirecommend.vercel.app/api/v3/format?format=MOVIE
+curl https://anirecommend.vercel.app/api/v3/format? type=MOVIE
 ````
 
 ---
@@ -176,6 +176,33 @@ https://your-project.vercel.app/api/v1/random
 ```
 
 ---
+
+# AniRecommendAPI Roadmap
+
+## ✅ Completed
+- /api/v1, /v2, /v3 with genre + format support
+- GitHub Auto Update with GH_PAT
+- Vercel Deployment
+- API Key Security
+
+## 🚀 Coming Soon
+- 🔍 /api/v3/search?title=Naruto
+- 📊 /api/stats with genres + formats
+- 📄 /api/v3/all?page=1&limit=50
+- 📌 /api/docs with Swagger Playground
+- 🔑 Rate-limiting by IP (via Upstash)
+
+## 🧠 Ideas
+- Anime quiz API using this dataset
+- Top-rated anime /api/v3/top
+- Suggest-anime endpoint (/suggest)
+- Telegram bot version
+
+---
+
+Built with ❤️ by [Shinei Nouzen](https://github.com/Shineii86)
+
+--- 
 
 ## 📬 Support
 
