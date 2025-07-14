@@ -5,11 +5,16 @@ export default function handler(req, res) {
   try {
     const filePath = path.join(process.cwd(), "data", "anime.json");
     const json = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(json);
+    let data = JSON.parse(json);
 
-    const total = Array.isArray(data) ? data.length : 0;
+    // Ensure it's a flat array
+    if (!Array.isArray(data)) throw new Error("anime.json is not an array");
+    data = data.flat();
 
-    // Add optional metadata
+    // Filter only valid entries that have an ID
+    const total = data.filter(a => typeof a.id === "number").length;
+
+    // Optional metadata
     res.setHeader("X-Creator", "Shinei Nouzen");
     res.setHeader("X-GitHub", "https://github.com/Shineii86");
     res.setHeader("X-Telegram", "https://telegram.me/Shineii86");
@@ -18,9 +23,10 @@ export default function handler(req, res) {
     res.status(200).json({
       schemaVersion: 1,
       label: "AniRecommend",
-      message: `${total} anime`,
-      color: "blue"
+      message: `Total ${total} animes`,
+      color: "green"
     });
+
   } catch (error) {
     console.error("❌ Badge error:", error.message);
     res.setHeader("X-Error", error.message);
