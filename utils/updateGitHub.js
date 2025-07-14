@@ -11,18 +11,26 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
   let existing = [];
   let sha = null;
 
-  // Fetch existing file
+  // Fetch existing anime.json file from GitHub
   try {
     const { data } = await axios.get(apiUrl, {
       headers: { Authorization: `token ${token}` },
     });
+
     sha = data.sha;
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
-    const parsed = JSON.parse(content);
-    existing = Array.isArray(parsed) ? parsed.flat() : [];
+
+    try {
+      const parsed = content.trim() ? JSON.parse(content) : [];
+      existing = Array.isArray(parsed) ? parsed.flat() : [];
+    } catch (e) {
+      console.warn("⚠️ Warning: anime.json is not valid JSON. Starting fresh.");
+      existing = [];
+    }
+
   } catch (err) {
     if (err.response?.status === 404) {
-      console.log("🚨 anime.json not found, creating new file");
+      console.log("🚨 anime.json not found — creating a new file.");
     } else {
       throw err;
     }
@@ -33,7 +41,7 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
     return typeof item.id === "number" && item.id > max ? item.id : max;
   }, 0);
 
-  // Filter out duplicates
+  // Remove duplicates by title
   const existingTitles = new Set(existing.map(a => a.title));
   const newRaw = newAnimeList.filter(a => !existingTitles.has(a.title));
 
@@ -42,16 +50,17 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
     return 0;
   }
 
-  // Map new entries with sequential IDs
+  // Assign new IDs
   const newEntries = newRaw.map((anime, idx) => ({
     id: maxId + idx + 1,
     ...anime
   }));
 
-  // Combine and commit
+  // Final list
   const finalData = [...existing, ...newEntries];
   const encoded = Buffer.from(JSON.stringify(finalData, null, 2)).toString("base64");
 
+  // Upload back to GitHub
   await axios.put(apiUrl, {
     message: `🚀 Added ${newEntries.length} new anime`,
     content: encoded,
