@@ -1,1 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AniRecommendAPI - Free Anime Recommendations REST API</title>
+  <meta name="description" content="Free REST API for Anime Recommendations">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4a4e69;
+      --secondary: #9a8c98;
+      --accent: #c9ada7;
+      --light: #f2e9e4;
+      --dark: #22223b;
+      --highlight: #4cc9f0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header Styles */
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      font-size: 2rem;
+      color: var(--highlight);
+    }
+    
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .logo span {
+      color: var(--highlight);
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    
+    nav a {
+      color: var(--light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      padding: 8px 0;
+      position: relative;
+    }
+    
+    nav a:hover {
+      color: var(--highlight);
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--highlight);
+      transition: width 0.3s;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    .hero {
+      background: linear-gradient(rgba(34, 34, 59, 0.9), rgba(34, 34, 59, 0.8)), 
+      url('https://i.ibb.co/pvKTnG3z/file-19.jpg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 5rem 0;
+      text-align: center;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: var(--highlight);
+      color: var(--dark);
+      padding: 12px 30px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(76, 201, 240, 0.6);
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 5rem 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .section-title h2 {
+      font-size: 2.5rem;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    
+    .section-title p {
+      color: var(--secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--highlight);
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    /* Documentation Section */
+    .documentation {
+      background: var(--light);
+      padding: 5rem 0;
+    }
+    
+    .endpoint {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .method {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-right: 1rem;
+    }
+    
+    .get { background: #e6f7ff; color: #1890ff; }
+    .post { background: #f6ffed; color: #52c41a; }
+    
+    .endpoint-url {
+      font-family: monospace;
+      background: #f8f9fa;
+      padding: 10px 15px;
+      border-radius: 4px;
+      border-left: 4px solid var(--highlight);
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+    
+    .code-block code {
+      display: block;
+      line-height: 1.6;
+    }
+    
+    .json-key { color: #f92672; }
+    .json-string { color: #a6e22e; }
+    .json-number { color: #ae81ff; }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: var(--light);
+      padding: 4rem 0 2rem;
+      margin-top: auto;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-logo .logo-icon {
+      font-size: 2rem;
+      color: var(--highlight);
+    }
+    
+    .footer-logo h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .footer-logo span {
+      color: var(--highlight);
+    }
+    
+    .footer-about p {
+      opacity: 0.8;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .social-link:hover {
+      background: var(--highlight);
+      transform: translateY(-3px);
+    }
+    
+    .footer-links h4 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .footer-links h4::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--highlight);
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+    
+    .footer-links a {
+      color: var(--light);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    
+    .footer-links a:hover {
+      opacity: 1;
+      color: var(--highlight);
+      transform: translateX(5px);
+    }
+    
+    .copyright {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      nav ul {
+        gap: 1.2rem;
+      }
+      
+      .hero h2 {
+        font-size: 2.2rem;
+      }
+      
+      .section-title h2 {
+        font-size: 2rem;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .hero {
+        padding: 3rem 0;
+      }
+      
+      .hero h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <h1>Ani<span>Recommend</span>API</h1>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#documentation">Documentation</a></li>
+            <li><a href="#github">GitHub</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
 
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h2>Free REST API for Anime Recommendations</h2>
+        <p>Powered by machine learning algorithms and curated anime data to deliver personalized recommendations for anime enthusiasts and developers.</p>
+        <a href="#github" class="cta-button">Get Started on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Powerful Features</h2>
+        <p>Designed for developers and anime enthusiasts alike</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Lightning Fast</h3>
+          <p>Our API delivers responses in under 100ms, ensuring smooth integration with your applications.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔓</div>
+          <h3>Free Forever</h3>
+          <p>Completely free to use with generous rate limits. No credit card required.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3>Comprehensive Database</h3>
+          <p>Access recommendations from over 10,000 anime titles with detailed metadata.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI-Powered</h3>
+          <p>Advanced recommendation algorithms that learn from user preferences and ratings.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3>Secure & Reliable</h3>
+          <p>HTTPS encryption and 99.9% uptime guarantee for your production needs.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Regular Updates</h3>
+          <p>Database updated weekly with new releases and seasonal anime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Documentation Section -->
+  <section id="documentation" class="documentation">
+    <div class="container">
+      <div class="section-title">
+        <h2>API Documentation</h2>
+        <p>Simple integration with clear endpoints and examples</p>
+      </div>
+      
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method get">GET</span>
+          <h3>Get Random Recommendations</h3>
+        </div>
+        <p>Retrieve personalized recommendations based on a specific anime title.</p>
+        
+        <div class="endpoint-url">
+          https://api.anirecommend.com/api/v1/random/
+        </div>
+        
+        <h4>Example Response:</h4>
+        <div class="code-block">
+          <code>
+            <span class="json-key">{</span><br>
+            &nbsp;&nbsp;<span class="json-key">"status":</span> <span class="json-string">"success"</span>,<br>
+            &nbsp;&nbsp;<span class="json-key">"data":</span> [<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"id":</span> <span class="json-number">5114</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"title":</span> <span class="json-string">"Fullmetal Alchemist: Brotherhood"</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"score":</span> <span class="json-number">9.25</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"episodes":</span> <span class="json-number">64</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"similarity":</span> <span class="json-number">0.92</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;},<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-comment">// ... additional recommendations</span><br>
+            &nbsp;&nbsp;]<br>
+            <span class="json-key">}</span>
+          </code>
+        </div>
+      </div>
+  </section>
+
+  <!-- GitHub Section -->
+  <section id="github" class="features" style="background: var(--light);">
+    <div class="container">
+      <div class="section-title">
+        <h2>Open Source & Community</h2>
+        <p>Contribute to the project and help improve anime recommendations</p>
+      </div>
+      
+      <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <div style="font-size: 4rem; margin-bottom: 1.5rem;">👨‍💻</div>
+        <h3 style="font-size: 2rem; margin-bottom: 1.5rem;">GitHub Repository</h3>
+        <p style="margin-bottom: 2rem; font-size: 1.1rem;">
+          AniRecommendAPI is completely open source. Visit our GitHub repository to view the source code, report issues, 
+          contribute to the project, or download the latest release.
+        </p>
+        <a href="https://github.com/Shineii86/AniRecommendAPI" target="_blank" class="cta-button" style="background: #333; color: white;">
+          <i class="fab fa-github"></i> Shineii86/AniRecommendAPI
+        </a>
+        <p style="margin-top: 2rem; font-style: italic; opacity: 0.8;">
+          Created with ❤️ by Shinei Nouzen
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-about">
+          <div class="footer-logo">
+            <div class="logo-icon">🚀</div>
+            <h3>Ani<span>Recommend</span>API</h3>
+          </div>
+          <p>
+            A free, open-source anime recommendation RESTful API built for developers and anime enthusiasts. 
+            Our mission is to provide high-quality anime recommendations to power the next generation of anime applications.
+          </p>
+          <div class="social-links">
+            <a href="https://github.com/Shineii86" class="social-link" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+            <a href="https://telegram.me/Shineii86" class="social-link" target="_blank">
+              <i class="fab fa-telegram"></i>
+            </a>
+            <a href="https://twitter.com/Shineii86" class="social-link" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://instagram.com/ikx7.a" class="social-link" target="_blank">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#documentation">Documentation</a></li>
+            <li><a href="#github">GitHub</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="https://github.com/AniPulse/ToS">Terms of Service</a></li>
+            <li><a href="https://github.com/AniPulse/Privacy">Privacy Policy</a></li>
+            <li><a href="https://github.com/AniPulse">License</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="copyright">
+        <p>Copyright &copy; 2025 Shinei Nouzen, All rights reserved</p>
+        <p style="margin-top: 10px;"><small>Last updated: <span id="timestamp"></span> IST</small></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("timestamp").textContent = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour12: true,
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  </script>
+</body>
+</html>
