@@ -8,32 +8,62 @@ export default function handler(req, res) {
     const animeList = JSON.parse(raw);
 
     if (!Array.isArray(animeList)) {
-      throw new Error("anime.json should be a flat array");
+      throw new Error("🔎 anime.json Should Be A Flat Array");
     }
 
-    let total = animeList.length;
+    const total = animeList.length;
+
     const formats = {};
     const genres = {};
+    const seasons = {};
+    const years = {};
+    const adult = { true: 0, false: 0 };
+    const sources = {};
 
-    animeList.forEach(anime => {
-      // count formats
+    animeList.forEach((anime) => {
+      // Format
       const fmt = (anime.format || anime.type || "UNKNOWN").toUpperCase();
       formats[fmt] = (formats[fmt] || 0) + 1;
 
-      // count genres
-      (anime.genres || []).forEach(g => {
+      // Genres
+      (anime.genres || []).forEach((g) => {
         genres[g] = (genres[g] || 0) + 1;
       });
+
+      // Seasons
+      const s = (anime.season || "UNKNOWN").toUpperCase();
+      seasons[s] = (seasons[s] || 0) + 1;
+
+      // Years
+      const y = anime.seasonYear || "UNKNOWN";
+      years[y] = (years[y] || 0) + 1;
+
+      // Adult
+      adult[anime.isAdult ? "true" : "false"]++;
+
+      // Source
+      const src = (anime.source || "UNKNOWN").toUpperCase();
+      sources[src] = (sources[src] || 0) + 1;
     });
 
+    // Add metadata headers
     res.setHeader("X-Creator", "Shinei Nouzen");
     res.setHeader("X-GitHub", "https://github.com/Shineii86");
     res.setHeader("X-Telegram", "https://telegram.me/Shineii86");
     res.setHeader("X-Timestamp", new Date().toISOString());
 
-    res.status(200).json({ total, formats, genres });
+    // Respond with full stats object
+    res.status(200).json({
+      total,
+      formats,
+      genres,
+      seasons,
+      years,
+      adult,
+      sources
+    });
   } catch (err) {
-    console.error("Stats error:", err);
-    res.status(500).json({ error: "Failed to generate statistics" });
+    console.error("❌ Stats error:", err.message);
+    res.status(500).json({ error: "🚨 Failed To Generate Statistics" });
   }
 }
