@@ -15,21 +15,14 @@
         "Access-Control-Allow-Headers": "Content-Type"
       },
       "methods": ["GET", "OPTIONS"],
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=3600"
-      }
+      "dest": "/api/$1.js"
     },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
-      "continue": true
+      "dest": "/index.html"
     }
   ]
 }
