@@ -1,6 +1,6 @@
 <div align="center">
    
-# AniRecommendAPI
+# [AniRecommendAPI](https://github.com/AniPulse)
 
 *A serverless REST API to discover anime recommendations — random, genre-based, or format-filtered — powered by AniList.*
 
@@ -22,6 +22,7 @@
 ## ✨ Features
 
 - 🎲 Get random anime recommendations
+- 🔥 Get anime by `id`
 - 🎯 Filter by genre (`/genre?genre=Action`)
 - 🖼️ Dual API versions (with or without image)
 - 📺 Filter by anime format (`TV`, `MOVIE`, `OVA`, etc.)
@@ -31,33 +32,85 @@
 
 ---
 
-## 🚀 Quick Usage
+## 🚀 Quick Start
 
+#### Random anime (without image)
 ```bash
-# Get random anime
-curl https://anirecommend.vercel.app/api/v1/random
+https://anirecommend.vercel.app/api/v1/random
+```
 
-# Get action anime with image
-curl https://anirecommend.vercel.app/api/v2/genre?genre=Action
+#### Get Action anime (with image)
+```bash
+https://anirecommend.vercel.app/api/v2/genre?genre=action
+```
 
-# Get random anime MOVIE format
-curl https://anirecommend.vercel.app/api/v3/format? type=MOVIE
-````
+#### Filter by format (e.g., Movie)
+```bash
+https://anirecommend.vercel.app/api/v3/format?type=movie
+```
+
+#### Filter by both genre and format
+```bash
+https://anirecommend.vercel.app/api/anime?genre=action&format=tv
+```
+
+#### Get anime by ID
+```bash
+https://anirecommend.vercel.app/api/v1/id?id=27
+```
+
+#### Random anime with ID included
+```bash
+https://anirecommend.vercel.app/api/v1/id
+```
+
+Get stats summary
+```bash
+https://anirecommend.vercel.app/api/stats
+```
 
 ---
 
 ## 🌐 API Endpoints
 
-| Version | Endpoint | Description |
-| ------- | -------- | ----------- |
-| v1      | `/api/v1/random` | Random anime (no image) |
-| v1      | `/api/v1/genre?genre={name}` | Genre-specific anime (no image) |
-| v2      | `/api/v2/random` | Random anime (with image) |
-| v2      | `/api/v2/genre?genre={name}` | Genre-specific (with image)                       |
-| v3      | `/api/v3/format?format={type}` | Format-specific anime |
-| anime | `/api/anime` | Returns all anime entries in the database |
-| scrape  | `/api/scrape?key=API_KEY` | Admin route to scrape AniList API |
+### Version 1 (Basic, no image)
 
+| Endpoint                     | Description                            |
+| ---------------------------- | -------------------------------------- |
+| `/api/v1/random`             | Get a random anime                     |
+| `/api/v1/genre?genre=Action` | Get a random anime from specific genre |
+| `/api/v1/id`                 | Get random anime (with ID)             |
+| `/api/v1/id?id=27`           | Get anime by ID                        |
+
+### Version 2 (With image)
+
+| Endpoint                    | Description                   |
+| --------------------------- | ----------------------------- |
+| `/api/v2/random`            | Random anime with cover image |
+| `/api/v2/genre?genre=Drama` | Genre filter with image       |
+
+### Version 3 (By format)
+
+| Endpoint                    | Description                                |
+| --------------------------- | ------------------------------------------ |
+| `/api/v3/format?type=movie` | Get anime by format (Movie, TV, OVA, etc.) |
+
+### Universal
+
+| Endpoint                               | Description                 |
+| -------------------------------------- | --------------------------- |
+| `/api/anime?genre=Action&format=Movie` | Get anime with both filters |
+
+### Statistics
+
+| Endpoint           | Description                    |
+| ------------------ | ------------------------------ |
+| `/api/stats`       | Show genre & format counts     |
+| `/api/stats/badge` | JSON badge showing total anime |
+
+---
+
+> [!TIP]
 > All query values are case-insensitive (e.g., `action`, `Action`, `ACTION` work the same).
 
 
@@ -68,17 +121,6 @@ curl https://anirecommend.vercel.app/api/v3/format? type=MOVIE
 | `GET /api/anime?genre={genre}` | Filters anime by specific genre | `genre`: Action, Adventure, Comedy, etc. |
 | `GET /api/anime?format={type}` | Filters anime by media type | `format`: TV, Movie, OVA, ONA, Special |
 | `GET /api/anime?genre={genre}&format={type}` | Filters by both genre and media type | Combination of above parameters |
-
----
-
-## 🔐 Environment Variables
-
-Set these on [Vercel](https://vercel.com) → Project → Settings → Environment Variables:
-
-| Key       | Value             | Description                         |
-| --------- | ----------------- | ----------------------------------- |
-| `GH_PAT`  | Your GitHub token | Allows writing to `data/anime.json` |
-| `API_KEY` | `API KEY` | Secures `/api/scrape` route|
 
 ---
 
@@ -137,6 +179,7 @@ GET `/api/v3/format?type=MOVIE`
 
 ```json
 {
+  "id": 42,
   "title": "Demon Slayer (鬼滅の刃)",
   "description": "Tanjiro Kamado is a kindhearted boy...",
   "type": "ANIME",
@@ -153,31 +196,82 @@ GET `/api/v3/format?type=MOVIE`
 
 ---
 
-## 🛠 Deployment Guide
+ ## 🛠️ Deployment Guide
 
-### 📌 Step 1: Fork this Repository
+### Step 1: Fork the Repo
 
-```bash
-https://github.com/Shineii86/AniRecommendAPI
-```
+1. Visit: [https://github.com/Shineii86/AniRecommendAPI](https://github.com/Shineii86/AniRecommendAPI)
+2. Click the `Fork` button
 
-### 🚀 Step 2: Deploy with Vercel
+### Step 2: Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FShineii86%2Fanirecommendapi)
 
-* Connect GitHub → Choose the forked repo
-* Set `GH_PAT` and `API_KEY` under Vercel Environment Variables
-* Click **Deploy**
+1. Select your forked repo
+2. Set the Environment Variable:
+🔐 Environment Variables
 
-### ✅ Step 3: Test it!
+Set these on [Vercel](https://vercel.com) → Project → Settings → Environment Variables:
 
-```bash
-https://your-project.vercel.app/api/v1/random
+| Key       | Value             | Description                         |
+| --------- | ----------------- | ----------------------------------- |
+| `GH_PAT`  | Your GitHub token | Allows writing to `data/anime.json` |
+| `API_KEY` | `API KEY` | Secures `/api/scrape` route|
+
+4. Deploy
+
+---
+
+## 🧠 Example JSON Response
+
+```json
+{
+  "id": 42,
+  "title": "Demon Slayer (鬼滅の刃)",
+  "type": "ANIME",
+  "format": "TV",
+  "status": "FINISHED",
+  "episodes": 26,
+  "duration": "24 Per Ep.",
+  "score": 85,
+  "genres": ["Action", "Supernatural", "Fantasy"],
+  "studios": ["ufotable"],
+  "description": "A young boy becomes a demon slayer...",
+  "creator": "Shinei Nouzen",
+  "github": "https://github.com/Shineii86",
+  "telegram": "https://telegran.me/Shineii86",
+  "message": "Build with ❤️ by Shinei Nouzen",
+  "timestamp": "14/7/2025, 11:57:00 pm"
+}
 ```
 
 ---
 
-# AniRecommendAPI Roadmap
+## 📊 Sample Stats (`/api/stats`)
+
+```json
+{
+  "formats": {
+    "TV": 35,
+    "MOVIE": 20,
+    "OVA": 5,
+    "ONA": 10,
+    "SPECIAL": 10
+  },
+  "genres": {
+    "Action": 25,
+    "Fantasy": 18,
+    "Romance": 10,
+    "Drama": 7,
+    "Comedy": 12
+  },
+  "total": 80
+}
+```
+
+---
+
+# Roadmap
 
 ## ✅ Completed
 - /api/v1, /v2, /v3 with genre + format support
@@ -197,10 +291,6 @@ https://your-project.vercel.app/api/v1/random
 - Top-rated anime /api/v3/top
 - Suggest-anime endpoint (/suggest)
 - Telegram bot version
-
----
-
-Built with ❤️ by [Shinei Nouzen](https://github.com/Shineii86)
 
 --- 
 
