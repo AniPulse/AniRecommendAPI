@@ -8,7 +8,7 @@ export default function handler(req, res) {
     const animeList = JSON.parse(raw);
 
     if (!Array.isArray(animeList)) {
-      throw new Error("🔎 anime.json Should Be A Flat Array");
+      throw new Error("🔎 anime.json should be a flat array");
     }
 
     const total = animeList.length;
@@ -30,11 +30,11 @@ export default function handler(req, res) {
         genres[g] = (genres[g] || 0) + 1;
       });
 
-      // Seasons
+      // Season
       const s = (anime.season || "UNKNOWN").toUpperCase();
       seasons[s] = (seasons[s] || 0) + 1;
 
-      // Years
+      // Year
       const y = anime.seasonYear || "UNKNOWN";
       years[y] = (years[y] || 0) + 1;
 
@@ -46,7 +46,6 @@ export default function handler(req, res) {
       sources[src] = (sources[src] || 0) + 1;
     });
 
-    // Respond with full stats object
     res.status(200).json({
       total,
       formats,
@@ -62,9 +61,11 @@ export default function handler(req, res) {
       timestamp: new Date().toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
         hour12: true
+      })
     });
+
   } catch (err) {
     console.error("❌ Stats error:", err.message);
-    res.status(500).json({ error: "🚨 Failed To Generate Statistics" });
+    res.status(500).json({ error: "🚨 Failed to generate statistics" });
   }
 }
