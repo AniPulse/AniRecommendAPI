@@ -46,12 +46,6 @@ export default function handler(req, res) {
       sources[src] = (sources[src] || 0) + 1;
     });
 
-    // Add metadata headers
-    res.setHeader("X-Creator", "Shinei Nouzen");
-    res.setHeader("X-GitHub", "https://github.com/Shineii86");
-    res.setHeader("X-Telegram", "https://telegram.me/Shineii86");
-    res.setHeader("X-Timestamp", new Date().toISOString());
-
     // Respond with full stats object
     res.status(200).json({
       total,
@@ -60,7 +54,14 @@ export default function handler(req, res) {
       seasons,
       years,
       adult,
-      sources
+      sources,
+      creator: "Shinei Nouzen",
+      github: "https://github.com/Shineii86",
+      telegram: "https://telegran.me/Shineii86",
+      message: "Build with ❤️ by Shinei Nouzen",
+      timestamp: new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour12: true
     });
   } catch (err) {
     console.error("❌ Stats error:", err.message);
