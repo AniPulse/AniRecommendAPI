@@ -1,5 +1,3 @@
-// /api/v4/filter.js
-
 import fs from "fs";
 import path from "path";
 
