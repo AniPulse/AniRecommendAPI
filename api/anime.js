@@ -3,34 +3,32 @@ import path from "path";
 
 export default function handler(req, res) {
   try {
+    const query = req.query;
+
     const filePath = path.join(process.cwd(), "data", "anime.json");
     const rawData = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(rawData);
+    const animeList = JSON.parse(rawData);
 
-    const { genre, format } = req.query;
-    let results = data;
+    const filtered = animeList.filter((anime) => {
+      if (query.season && (anime.season || "").toUpperCase() !== query.season.toUpperCase()) return false;
+      if (query.year && anime.seasonYear !== parseInt(query.year)) return false;
+      if (query.score && anime.score < parseInt(query.score)) return false;
+      if (query.adult && anime.isAdult !== (query.adult === "true")) return false;
+      if (query.format && (anime.format || "").toUpperCase() !== query.format.toUpperCase()) return false;
+      if (query.source && (anime.source || "").toUpperCase() !== query.source.toUpperCase()) return false;
+      if (query.genre) {
+        const targetGenre = query.genre.toLowerCase();
+        const genres = anime.genres?.map(g => g.toLowerCase()) || [];
+        if (!genres.includes(targetGenre)) return false;
+      }
+      return true;
+    });
 
-    // Genre filtering (case-insensitive)
-    if (genre) {
-      const g = genre.toLowerCase();
-      results = results.filter(anime =>
-        anime.genres?.some(gen => gen.toLowerCase() === g)
-      );
+    if (!filtered.length) {
+      return res.status(404).json({ error: "🚨 No anime matched the provided filters" });
     }
 
-    // Format filtering (TV, MOVIE, etc.)
-    if (format) {
-      const f = format.toUpperCase();
-      results = results.filter(anime =>
-        anime.format?.toUpperCase() === f
-      );
-    }
-
-    if (!results.length) {
-      return res.status(404).json({ error: "🔎 No Matching Anime Found." });
-    }
-
-    const anime = results[Math.floor(Math.random() * results.length)];
+    const anime = filtered[Math.floor(Math.random() * filtered.length)];
 
     res.status(200).json({
       ...anime,
@@ -44,7 +42,7 @@ export default function handler(req, res) {
       })
     });
   } catch (err) {
-    console.error("❌ Error:", err.message);
-    res.status(500).json({ error: "🚨 Server Error While Reading Anime Data." });
+    console.error("🚫 Filter API error:", err);
+    res.status(500).json({ error: "🚨 Internal Server Error" });
   }
 }
