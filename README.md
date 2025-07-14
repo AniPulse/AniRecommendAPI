@@ -73,7 +73,7 @@ https://anirecommend.vercel.app/api/stats
 
 ## 🌐 API Endpoints
 
-### Version 1 (Basic, no image)
+### Version 1 (Basic, No Image)
 
 | Endpoint                     | Description                            |
 | ---------------------------- | -------------------------------------- |
@@ -82,46 +82,47 @@ https://anirecommend.vercel.app/api/stats
 | `/api/v1/id`                 | Get random anime (with ID)             |
 | `/api/v1/id?id=27`           | Get anime by ID                        |
 
-### Version 2 (With image)
+### Version 2 (With Image)
 
 | Endpoint                    | Description                   |
 | --------------------------- | ----------------------------- |
 | `/api/v2/random`            | Random anime with cover image |
 | `/api/v2/genre?genre=Drama` | Genre filter with image       |
 
-### Version 3 (By format)
+### Version 3 (By Format)
 
 | Endpoint                    | Description                                |
 | --------------------------- | ------------------------------------------ |
 | `/api/v3/format?type=movie` | Get anime by format (Movie, TV, OVA, etc.) |
 
-### Version 4
+### <s>Version 4 (Advanced Filters)
 
-| Endpoint                          | Description                                 |
-|----------------------------------|---------------------------------------------|
-| `/api/v4/season?season=FALL`     | Filter by anime season                      |
-| `/api/v4/year?year=2020`         | Filter by release year                      |
-| `/api/v4/score?score=85`         | Filter by minimum score                     |
-| `/api/v4/adult?adult=true`       | Adult or non-adult anime                    |
-| `/api/v4/source?source=MANGA`    | Filter by original source                   |
-| `/api/v4/format?type=MOVIE`      | Filter by anime format                      |
+The `/api/v4` endpoints support advanced filtering by season, year, score, format, adult content, source, and genre.
 
-`/api/v4/anime`
-Supports query parameters:
-- [x] `season=SPRING`
-- [x] `year=2020`
-- [x] `score=80`
-- [x] `adult=true`
-- [x] `source=MANGA`
-- [x] `format=MOVIE`
-- [x] `genre=Action`
+#### `/api/v4/filter`
+
+**Returns a random anime matching all query parameters.**
+
+#### Supported Query Parameters:
+| Parameter   | Type     | Example           | Description                              |
+|-------------|----------|-------------------|------------------------------------------|
+| `season`    | String   | `SPRING`          | Anime season (SPRING, SUMMER, FALL, WINTER) |
+| `year`      | Integer  | `2020`            | Year the anime aired                     |
+| `score`     | Integer  | `80`              | Minimum average score                    |
+| `adult`     | Boolean  | `true` / `false`  | Include adult (hentai) anime             |
+| `source`    | String   | `MANGA`           | Source material (e.g., MANGA, LIGHT_NOVEL) |
+| `format`    | String   | `MOVIE`           | Format (TV, MOVIE, ONA, OVA, SPECIAL)    |
+| `genre`     | String   | `Action`          | Genre name (case-insensitive)            |
+
 
 ```bash
-GET /api/v4/anime?season=SPRING&year=2020&score=75&adult=false
+GET /api/v4/filter?season=SPRING&year=2020&score=75&adult=false
 ```
 ```bash
-GET /api/v4/anime?genre=Action&source=MANGA&format=TV
+GET /api/v4/filter?genre=Action&source=MANGA&format=TV
 ```
+</s>
+
 ---
 
 ### Universal
