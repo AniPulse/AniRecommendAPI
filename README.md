@@ -132,6 +132,35 @@ GET /api/v4/filter?genre=Action&source=MANGA&format=TV
 | `/api/anime?genre=Action&format=Movie` | Get anime with both filters |
 
 ---
+### ✅ Example Usage
+
+```http
+GET /api/anime?season=SPRING&year=2020&score=75&adult=false
+GET /api/anime?season=SPRING&year=2020&score=75&adult=false&format=TV&genre=Action&source=MANGA
+GET /api/anime?season=SPRING&year=2020&format=TV&genre=Action&source=MANGA
+```
+
+---
+
+### 📘 How It Works
+
+The `/api/anime` endpoint supports the following optional query parameters:
+
+| Parameter | Type    | Example      | Description                             |
+| --------- | ------- | ------------ | --------------------------------------- |
+| `season`  | string  | `SPRING`     | Filter by anime season (WINTER, etc)    |
+| `year`    | number  | `2020`       | Filter by seasonYear                    |
+| `score`   | number  | `75`         | Minimum average score (0–100)           |
+| `adult`   | boolean | `true/false` | Filter by NSFW status                   |
+| `format`  | string  | `TV`         | Filter by anime format (TV, MOVIE, etc) |
+| `genre`   | string  | `Action`     | Filter by genre                         |
+| `source`  | string  | `MANGA`      | Source material (MANGA, NOVEL, etc)     |
+
+#### 🧠 Filter Matching Logic
+
+All parameters are **ANDed together** — meaning the result must match **all provided filters**.
+
+---
 
 ### 🔥 Anime API Endpoints
 
