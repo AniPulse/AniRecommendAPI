@@ -106,6 +106,22 @@ https://anirecommend.vercel.app/api/stats
 | `/api/v4/source?source=MANGA`    | Filter by original source                   |
 | `/api/v4/format?type=MOVIE`      | Filter by anime format                      |
 
+`/api/v4/anime`
+Supports query parameters:
+- [x] `season=SPRING`
+- [x] `year=2020`
+- [x] `score=80`
+- [x] `adult=true`
+- [x] `source=MANGA`
+- [x] `format=MOVIE`
+- [x] `genre=Action`
+
+```bash
+GET /api/v4/anime?season=SPRING&year=2020&score=75&adult=false
+```
+```bash
+GET /api/v4/anime?genre=Action&source=MANGA&format=TV
+```
 ---
 
 ### Universal
