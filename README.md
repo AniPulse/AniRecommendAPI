@@ -249,7 +249,8 @@ All parameters are **ANDed together** — meaning the result must match **all pr
 
 1. Select your forked repo
 2. Set the Environment Variable:
-🔐 Environment Variables
+  
+#### 🔐 Environment Variables
 
 Set these on [Vercel](https://vercel.com) → Project → Settings → Environment Variables:
 
@@ -258,7 +259,7 @@ Set these on [Vercel](https://vercel.com) → Project → Settings → Environme
 | `GH_PAT`  | Your GitHub token | Allows writing to `data/anime.json` |
 | `API_KEY` | `API KEY` | Secures `/api/scrape` route|
 
-4. Deploy
+3. Deploy
 
 --- 
 
