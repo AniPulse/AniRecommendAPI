@@ -95,24 +95,26 @@ https://anirecommend.vercel.app/api/stats
 | --------------------------- | ------------------------------------------ |
 | `/api/v3/format?type=movie` | Get anime by format (Movie, TV, OVA, etc.) |
 
+### Version 4
+
+| Endpoint                          | Description                                 |
+|----------------------------------|---------------------------------------------|
+| `/api/v4/season?season=FALL`     | Filter by anime season                      |
+| `/api/v4/year?year=2020`         | Filter by release year                      |
+| `/api/v4/score?score=85`         | Filter by minimum score                     |
+| `/api/v4/adult?adult=true`       | Adult or non-adult anime                    |
+| `/api/v4/source?source=MANGA`    | Filter by original source                   |
+| `/api/v4/format?type=MOVIE`      | Filter by anime format                      |
+
+---
+
 ### Universal
 
 | Endpoint                               | Description                 |
 | -------------------------------------- | --------------------------- |
 | `/api/anime?genre=Action&format=Movie` | Get anime with both filters |
 
-### Statistics
-
-| Endpoint           | Description                    |
-| ------------------ | ------------------------------ |
-| `/api/stats`       | Show genre & format counts     |
-| `/api/stats/badge` | JSON badge showing total anime |
-
 ---
-
-> [!TIP]
-> All query values are case-insensitive (e.g., `action`, `Action`, `ACTION` work the same).
-
 
 ### 🔥 Anime API Endpoints
 
@@ -122,75 +124,67 @@ https://anirecommend.vercel.app/api/stats
 | `GET /api/anime?format={type}` | Filters anime by media type | `format`: TV, Movie, OVA, ONA, Special |
 | `GET /api/anime?genre={genre}&format={type}` | Filters by both genre and media type | Combination of above parameters |
 
+> [!TIP]
+> All query values are case-insensitive (e.g., `action`, `Action`, `ACTION` work the same).
+
 ---
 
-## 🎯 Supported Genres
+### Statistics
 
-| Endpoint for v1 & v2 | Description |  
-| :------ | :---------- |  
-| `/api/v1/genre?genre=Action` | Returns anime with intense physical combat, battles, or fast-paced plots. |  
-| `/api/v1/genre?genre=Adventure` | Features anime centered around exploration, travel, or quests. |  
-| `/api/v1/genre?genre=Comedy` | Lighthearted anime focused on humor and funny situations. |  
-| `/api/v1/genre?genre=Drama` | Emotional, character-driven stories with serious themes. |  
-| `/api/v1/genre?genre=Fantasy` | Anime set in magical worlds or with supernatural elements. |  
-| `/api/v1/genre?genre=Horror` | Scary or unsettling anime, often with supernatural threats. |  
-| `/api/v1/genre?genre=Mystery` | Anime involving puzzles, secrets, or investigative plots. |  
-| `/api/v1/genre?genre=Romance` | Focuses on love stories and romantic relationships. |  
-| `/api/v1/genre?genre=Sci-Fi` | Futuristic technology, space travel, or scientific themes. |  
-| `/api/v1/genre?genre=Supernatural` | Anime with ghosts, spirits, or otherworldly phenomena. |  
-| `/api/v1/genre?genre=Slice of Life` | Everyday life stories with minimal fantastical elements. |  
-| `/api/v1/genre?genre=Psychological` | Mind-bending narratives exploring mental states or illusions. |  
-| `/api/v1/genre?genre=Ecchi` | Anime with playful, risqué humor and mild fanservice. |  
-| `/api/v1/genre?genre=Mecha` | Features giant robots or mechanized suits. |  
-| `/api/v1/genre?genre=Thriller` | High-stakes tension, suspense, or danger-driven plots. |  
-| `/api/v1/genre?genre=Sports` | Anime centered around competitive sports or athletics. |  
-| `/api/v1/genre?genre=Music` | Focuses on musicians, bands, or music-related stories. |  
-| `/api/v1/genre?genre=Martial Arts` | Combat-focused anime emphasizing fighting techniques. |  
-| `/api/v1/genre?genre=Game` | Anime involving video games, game worlds, or players. |  
-| `/api/v1/genre?genre=Shounen` | Targets young male audiences; action-packed or friendship themes. |  
-| `/api/v1/genre?genre=Seinen` | Anime for adult men, often darker or more mature. |  
-| `/api/v1/genre?genre=Shoujo` | Targets young female audiences; romance or personal growth. |  
-| `/api/v1/genre?genre=Josei` | Anime for adult women, often realistic or dramatic. |  
-| `/api/v1/genre?genre=Super Power` | Characters with unique abilities or superhuman traits. |  
-| `/api/v1/genre?genre=Magic` | Anime where magic is a central element. |  
-| `/api/v1/genre?genre=Demons` | Features demons, demon hunters, or underworld themes. |  
-| `/api/v1/genre?genre=Historical` | Set in a specific historical period or inspired by real events. |  
-| `/api/v1/genre?genre=Military` | Focuses on warfare, soldiers, or military strategy. |  
-| `/api/v1/genre?genre=Parody` | Humorous anime that satirizes other works or tropes. |  
-| `/api/v1/genre?genre=Police` | Crime-solving, detective work, or law enforcement themes. |  
-| `/api/v1/genre?genre=Space` | Set in outer space or involving interstellar travel. |  
-| `/api/v1/genre?genre=Vampire` | Anime centered around vampires or vampiric lore. |  
+| Endpoint           | Description                    |
+| ------------------ | ------------------------------ |
+| `/api/stats`       | Show genre & format counts     |
+| `/api/stats/badge` | JSON badge showing total anime |
 
-## 📺 Supported Formats
+#### 📊 Sample Stats (`/api/stats`)
 
-| Endpoint | Description |
-| :------ | :---------- |
-| `/api/v3/format?type=TV` | **TV Series** - Episodic anime aired on television with standard episode lengths (20-24 mins). |
-| `/api/v3/format?type=MOVIE` | **Movie** - Feature-length anime films (typically 60+ mins), often with cinematic production quality. |
-| `/api/v3/format?type=OVA` | **Original Video Animation** - Direct-to-video releases, often higher-budget or experimental (1-6 episodes). |
-| `/api/v3/format?type=ONA` | **Original Net Animation** - Web-distributed anime, usually shorter or with unconventional formats. |
-| `/api/v3/format?type=SPECIAL` | **Special** - Bonus content (recaps, shorts, or side stories) tied to existing series. |
+```json
+{
+  "formats": {
+    "TV": 35,
+    "MOVIE": 20,
+    "OVA": 5,
+    "ONA": 10,
+    "SPECIAL": 10
+  },
+  "genres": {
+    "Action": 25,
+    "Fantasy": 18,
+    "Romance": 10,
+    "Drama": 7,
+    "Comedy": 12
+  },
+  "total": 80
+}
+```
 
-**Example Request:**  
-
-GET `/api/v3/format?type=MOVIE`
+---
 
 ## 📦 Sample Response
 
 ```json
 {
-  "id": 42,
-  "title": "Demon Slayer (鬼滅の刃)",
-  "description": "Tanjiro Kamado is a kindhearted boy...",
+  "id": 102,
+  "title": "Jujutsu Kaisen (呪術廻戦)",
+  "description": "A boy fights cursed spirits after eating a special finger...",
   "type": "ANIME",
-  "status": "FINISHED",
   "format": "TV",
-  "episodes": 26,
-  "duration": "24 Per Ep.",
-  "score": 85,
-  "genres": ["Action", "Supernatural", "Fantasy"],
-  "studios": ["ufotable"],
-  "image": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922.jpg"
+  "status": "FINISHED",
+  "episodes": 24,
+  "duration": "23 Per Ep.",
+  "score": 88,
+  "genres": ["Action", "Supernatural", "Shounen"],
+  "studios": ["MAPPA"],
+  "season": "FALL",
+  "seasonYear": 2020,
+  "isAdult": false,
+  "source": "MANGA",
+  "image": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx116588-xyz.jpg",
+  "creator": "Shinei Nouzen",
+  "github": "https://github.com/Shineii86",
+  "telegram": "https://telegran.me/Shineii86",
+  "message": "Build with ❤️ by Shinei Nouzen",
+  "timestamp": "23/03/2023, 01:04:03 pm"
 }
 ```
 
@@ -219,78 +213,6 @@ Set these on [Vercel](https://vercel.com) → Project → Settings → Environme
 | `API_KEY` | `API KEY` | Secures `/api/scrape` route|
 
 4. Deploy
-
----
-
-## 🧠 Example JSON Response
-
-```json
-{
-  "id": 42,
-  "title": "Demon Slayer (鬼滅の刃)",
-  "type": "ANIME",
-  "format": "TV",
-  "status": "FINISHED",
-  "episodes": 26,
-  "duration": "24 Per Ep.",
-  "score": 85,
-  "genres": ["Action", "Supernatural", "Fantasy"],
-  "studios": ["ufotable"],
-  "description": "A young boy becomes a demon slayer...",
-  "creator": "Shinei Nouzen",
-  "github": "https://github.com/Shineii86",
-  "telegram": "https://telegran.me/Shineii86",
-  "message": "Build with ❤️ by Shinei Nouzen",
-  "timestamp": "14/7/2025, 11:57:00 pm"
-}
-```
-
----
-
-## 📊 Sample Stats (`/api/stats`)
-
-```json
-{
-  "formats": {
-    "TV": 35,
-    "MOVIE": 20,
-    "OVA": 5,
-    "ONA": 10,
-    "SPECIAL": 10
-  },
-  "genres": {
-    "Action": 25,
-    "Fantasy": 18,
-    "Romance": 10,
-    "Drama": 7,
-    "Comedy": 12
-  },
-  "total": 80
-}
-```
-
----
-
-# Roadmap
-
-## ✅ Completed
-- /api/v1, /v2, /v3 with genre + format support
-- GitHub Auto Update with GH_PAT
-- Vercel Deployment
-- API Key Security
-
-## 🚀 Coming Soon
-- 🔍 /api/v3/search?title=Naruto
-- 📊 /api/stats with genres + formats
-- 📄 /api/v3/all?page=1&limit=50
-- 📌 /api/docs with Swagger Playground
-- 🔑 Rate-limiting by IP (via Upstash)
-
-## 🧠 Ideas
-- Anime quiz API using this dataset
-- Top-rated anime /api/v3/top
-- Suggest-anime endpoint (/suggest)
-- Telegram bot version
 
 --- 
 
