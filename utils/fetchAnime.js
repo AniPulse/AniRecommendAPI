@@ -13,6 +13,25 @@ export async function fetchAnimeData(page) {
           format
           averageScore
           genres
+          isAdult
+          season
+          seasonYear
+          source
+          startDate {
+            year
+            month
+            day
+          }
+          endDate {
+            year
+            month
+            day
+          }
+          studios {
+            nodes {
+              name
+            }
+          }
           studios { nodes { name } }
           coverImage { large }
         }
@@ -34,6 +53,12 @@ export async function fetchAnimeData(page) {
     duration: anime.duration ? `${anime.duration} Per Ep.` : "Unknown",
     score: anime.averageScore || 0,
     genres: anime.genres,
+    isAdult: anime.isAdult,
+    source: anime.source || "UNKNOWN",
+    season: anime.season || "UNKNOWN",
+    seasonYear: anime.seasonYear || null,
+    startDate: anime.startDate || {},
+    endDate: anime.endDate || {},
     studios: anime.studios.nodes.map((s) => s.name),
     image: anime.coverImage.large,
   }));
