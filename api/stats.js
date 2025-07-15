@@ -3,12 +3,29 @@ import path from "path";
 
 export default function handler(req, res) {
   try {
-    const filePath = path.join(process.cwd(), "data", "anime.json");
-    const raw = fs.readFileSync(filePath, "utf8");
-    const animeList = JSON.parse(raw);
+    const dataDir = path.join(process.cwd(), "data");
+
+    const files = fs.readdirSync(dataDir).filter(file =>
+      file.startsWith("anime") && file.endsWith(".json")
+    );
+
+    let animeList = [];
+
+    for (const file of files) {
+      const filePath = path.join(dataDir, file);
+      try {
+        const raw = fs.readFileSync(filePath, "utf8");
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          animeList.push(...parsed);
+        }
+      } catch (e) {
+        console.warn(`⚠️ Skipping invalid JSON in ${file}`);
+      }
+    }
 
     if (!Array.isArray(animeList)) {
-      throw new Error("🔎 anime.json should be a flat array");
+      throw new Error("🔎 Merged anime data should be an array");
     }
 
     const total = animeList.length;
@@ -56,7 +73,7 @@ export default function handler(req, res) {
       sources,
       creator: "Shinei Nouzen",
       github: "https://github.com/Shineii86",
-      telegram: "https://telegran.me/Shineii86",
+      telegram: "https://telegram.me/Shineii86",
       message: "Build with ❤️ by Shinei Nouzen",
       timestamp: new Date().toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
