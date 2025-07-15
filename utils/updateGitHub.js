@@ -2,7 +2,7 @@ import axios from "axios";
 
 const OWNER = "Shineii86";
 const REPO = "AniRecommendAPI";
-const FILE_PATH = "data/anime.json";
+const FILE_PATH = "data/anime1.json";
 
 export async function updateAnimeJsonOnGitHub(newAnimeList) {
   const token = process.env.GH_PAT;
