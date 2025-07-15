@@ -11,7 +11,7 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
   let existing = [];
   let sha = null;
 
-  // Fetch existing anime.json file from GitHub
+  // 1. Get existing data
   try {
     const { data } = await axios.get(apiUrl, {
       headers: { Authorization: `token ${token}` },
@@ -21,54 +21,62 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
 
     try {
-      const parsed = content.trim() ? JSON.parse(content) : [];
-      existing = Array.isArray(parsed) ? parsed.flat() : [];
-    } catch (e) {
-      console.warn("⚠️ Warning: anime.json is not valid JSON. Starting fresh.");
+      existing = content.trim() ? JSON.parse(content) : [];
+    } catch {
+      console.warn("⚠️ anime.json is not valid. Starting with empty array.");
       existing = [];
     }
-
   } catch (err) {
     if (err.response?.status === 404) {
-      console.log("🚨 anime.json not found — creating a new file.");
+      console.log("📁 anime.json not found. Will create it.");
     } else {
       throw err;
     }
   }
 
-  // Determine current max ID
-  const maxId = existing.reduce((max, item) => {
-    return typeof item.id === "number" && item.id > max ? item.id : max;
-  }, 0);
+  // 2. Create map of existing _key to avoid duplicates
+  const existingMap = new Map(existing.map((anime) => [anime._key, anime]));
 
-  // Remove duplicates by title
-  const existingTitles = new Set(existing.map(a => a.title));
-  const newRaw = newAnimeList.filter(a => !existingTitles.has(a.title));
+  // 3. Merge new anime (add only if _key is not already present)
+  let added = 0;
+  for (const anime of newAnimeList) {
+    if (!existingMap.has(anime._key)) {
+      existingMap.set(anime._key, anime);
+      added++;
+    }
+  }
 
-  if (newRaw.length === 0) {
-    console.log("✅ No new anime to add.");
+  if (added === 0) {
+    console.log("✅ No new anime to add. All are duplicates.");
     return 0;
   }
 
-  // Assign new IDs
-  const newEntries = newRaw.map((anime, idx) => ({
-    id: maxId + idx + 1,
-    ...anime
-  }));
+  // 4. Assign IDs based on existing highest ID
+  const allAnime = Array.from(existingMap.values());
+  const maxId = allAnime.reduce((max, a) => (a.id > max ? a.id : max), 0);
+  let nextId = maxId + 1;
 
-  // Final list
-  const finalData = [...existing, ...newEntries];
-  const encoded = Buffer.from(JSON.stringify(finalData, null, 2)).toString("base64");
+  for (const anime of allAnime) {
+    if (!anime.id) {
+      anime.id = nextId++;
+    }
+  }
 
-  // Upload back to GitHub
-  await axios.put(apiUrl, {
-    message: `🚀 Added ${newEntries.length} new anime`,
-    content: encoded,
-    ...(sha ? { sha } : {})
-  }, {
-    headers: { Authorization: `token ${token}` }
-  });
+  // 5. Save final merged list back to GitHub
+  const finalEncoded = Buffer.from(JSON.stringify(allAnime, null, 2)).toString("base64");
 
-  console.log(`🔥 Added ${newEntries.length} anime entries.`);
-  return newEntries.length;
+  await axios.put(
+    apiUrl,
+    {
+      message: `✨ Added ${added} new anime entries`,
+      content: finalEncoded,
+      ...(sha ? { sha } : {}),
+    },
+    {
+      headers: { Authorization: `token ${token}` },
+    }
+  );
+
+  console.log(`🔥 Added ${added} new anime. Total: ${allAnime.length}`);
+  return added;
 }
