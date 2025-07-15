@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Define the GraphQL query as a constant for reusability
 const ANIME_QUERY = `
   query ($page: Int) {
     Page(page: $page, perPage: 50) {
@@ -25,8 +24,7 @@ const ANIME_QUERY = `
     }
   }`;
 
-// Helper function to transform API response
-function transformAnimeItem(anime: any) {
+function transformAnimeItem(anime) {
   return {
     title: `${anime.title.romaji} (${anime.title.native})`,
     description: anime.description?.replace(/<[^>]+>/g, "") || "No description available",
@@ -43,13 +41,12 @@ function transformAnimeItem(anime: any) {
     seasonYear: anime.seasonYear || null,
     startDate: anime.startDate || {},
     endDate: anime.endDate || {},
-    studios: anime.studios.nodes.map((s: any) => s.name),
+    studios: anime.studios.nodes.map((s) => s.name),
     image: anime.coverImage.large,
   };
 }
 
-// Fetch a single page with rate limit handling
-async function fetchAnimePage(page: number) {
+async function fetchAnimePage(page) {
   try {
     const response = await axios.post("https://graphql.anilist.co", {
       query: ANIME_QUERY,
@@ -66,21 +63,16 @@ async function fetchAnimePage(page: number) {
   }
 }
 
-// Main function to fetch multiple pages
-export async function fetchMultipleAnimePages(
-  startPage: number = 1,
-  numPages: number = 100
-) {
-  let allAnime: any[] = [];
+export async function fetchMultipleAnimePages(startPage = 1, numPages = 100) {
+  let allAnime = [];
   let currentPage = startPage;
-  let delay = 700; // Initial delay (ms) between requests
+  let delay = 700;
 
   for (let i = 0; i < numPages; i++) {
     const { data, headers } = await fetchAnimePage(currentPage);
     allAnime = [...allAnime, ...data];
     currentPage++;
 
-    // Handle rate limiting
     const remaining = parseInt(headers["x-ratelimit-remaining"] || "90");
     const resetIn = parseInt(headers["retry-after"] || "0") * 1000;
     
@@ -89,15 +81,14 @@ export async function fetchMultipleAnimePages(
       console.log(`Approaching rate limit. Waiting ${waitTime}ms...`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     } else if (remaining < 10) {
-      delay = Math.min(delay + 50, 2000); // Increase delay gradually
+      delay = Math.min(delay + 50, 2000);
     }
   }
 
   return allAnime;
 }
 
-// Existing single-page fetch function
-export async function fetchAnimeData(page: number) {
+export async function fetchAnimeData(page) {
   const { data } = await fetchAnimePage(page);
   return data;
 }
