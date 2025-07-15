@@ -14,7 +14,7 @@ export async function fetchAnimeData(page) {
   const query = `
     query ($page: Int) {
       Page(page: $page, perPage: 500) {
-        media(type: ANIME, sort: FAVOURITES_DESC) {
+        media(type: ANIME, sort: POPULARITY) {
           id
           title { romaji native }
           description(asHtml: false)
