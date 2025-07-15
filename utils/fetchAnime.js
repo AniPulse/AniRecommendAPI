@@ -13,8 +13,8 @@ function slugifyRomaji(title = "") {
 export async function fetchAnimeData(page) {
   const query = `
     query ($page: Int) {
-      Page(page: $page, perPage: 500) {
-        media(type: ANIME, sort: ID) {
+      Page(page: $page, perPage: 5000) {
+        media(type: ANIME, sort: POPULARITY) {
           id
           title { romaji native }
           description(asHtml: false)
