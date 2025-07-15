@@ -4,8 +4,8 @@ export async function fetchAnimeData(page) {
   const query = `
     query ($page: Int) {
       Page(page: $page, perPage: 500) {
-        media(type: ANIME, sort: FAVOURITES_DESC) {
-          id  # AniList ID
+        media(type: ANIME, sort: POPULARITY_DESC) {
+          id
           title { romaji native }
           description(asHtml: false)
           episodes
@@ -19,15 +19,15 @@ export async function fetchAnimeData(page) {
           seasonYear
           source
           startDate { year month day }
-          endDate { year month day }
+          endDate   { year month day }
           studios { nodes { name } }
           coverImage {
-            bannerImage
             large
             medium
             extraLarge
             color
           }
+          bannerImage
         }
       }
     }`;
@@ -38,7 +38,7 @@ export async function fetchAnimeData(page) {
   });
 
   return res.data.data.Page.media.map((anime) => ({
-    anilistId: anime.id,  // AniList ID
+    anilistId: anime.id,
     title: `${anime.title.romaji} (${anime.title.native})`,
     description: anime.description?.replace(/<[^>]+>/g, "") || "No description available",
     type: "ANIME",
@@ -56,13 +56,11 @@ export async function fetchAnimeData(page) {
     endDate: anime.endDate || {},
     studios: anime.studios.nodes.map((s) => s.name),
     images: {
-      cover: {
-        banner: anime.bannerImage || "",
-        large: anime.coverImage?.large || "",
-        medium: anime.coverImage?.medium || "",
-        extraLarge: anime.coverImage?.extraLarge || "",
-        color: anime.coverImage?.color || ""
-      }, 
+      large: anime.coverImage.large,
+      medium: anime.coverImage.medium,
+      extraLarge: anime.coverImage.extraLarge,
+      banner: anime.bannerImage || null,
+      color: anime.coverImage.color || null
     }
   }));
 }
