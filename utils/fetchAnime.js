@@ -3,8 +3,8 @@ import axios from "axios";
 export async function fetchAnimeData(page) {
   const query = `
     query ($page: Int) {
-      Page(page: $page, perPage: 50) {
-        media(type: ANIME, sort: POPULARITY_DESC) {
+      Page(page: $page, perPage: 500) {
+        media(type: ANIME, sort: FAVOURITES_DESC) {
           id  # AniList ID
           title { romaji native }
           description(asHtml: false)
