@@ -5,11 +5,34 @@ export default function handler(req, res) {
   try {
     const userFormat = decodeURIComponent(req.query.type || "").toUpperCase();
 
-    const filePath = path.join(process.cwd(), "data", "anime.json");
-    const rawData = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(rawData);
+    if (!userFormat) {
+      return res.status(400).json({
+        error: "❌ Format type is required. Example: /api/format?type=TV"
+      });
+    }
 
-    const filtered = data.filter(
+    const dataDir = path.join(process.cwd(), "data");
+    const files = fs.readdirSync(dataDir).filter(
+      file => file.startsWith("anime") && file.endsWith(".json")
+    );
+
+    let allAnime = [];
+
+    for (const file of files) {
+      const filePath = path.join(dataDir, file);
+      const rawData = fs.readFileSync(filePath, "utf8");
+
+      try {
+        const parsed = JSON.parse(rawData);
+        if (Array.isArray(parsed)) {
+          allAnime.push(...parsed);
+        }
+      } catch {
+        console.warn(`⚠️ Skipping invalid JSON in ${file}`);
+      }
+    }
+
+    const filtered = allAnime.filter(
       (anime) => (anime.format || "").toUpperCase() === userFormat
     );
 
@@ -25,13 +48,14 @@ export default function handler(req, res) {
       ...anime,
       creator: "Shinei Nouzen",
       github: "https://github.com/Shineii86",
-      telegram: "https://telegran.me/Shineii86",
+      telegram: "https://telegram.me/Shineii86",
       message: "Build with ❤️ by Shinei Nouzen",
       timestamp: new Date().toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
         hour12: true
       })
     });
+
   } catch (err) {
     console.error("❌ Format API error:", err.message);
     res.status(500).json({ error: "🚨 Internal Server Error" });
