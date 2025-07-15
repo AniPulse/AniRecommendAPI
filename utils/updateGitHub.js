@@ -11,7 +11,6 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
   let existing = [];
   let sha = null;
 
-  // Fetch existing anime.json file from GitHub
   try {
     const { data } = await axios.get(apiUrl, {
       headers: { Authorization: `token ${token}` },
@@ -19,83 +18,58 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
 
     sha = data.sha;
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
-
-    try {
-      const parsed = content.trim() ? JSON.parse(content) : [];
-      existing = Array.isArray(parsed) ? parsed.flat() : [];
-    } catch (e) {
-      console.warn("⚠️ Warning: anime.json is not valid JSON. Starting fresh.");
-      existing = [];
-    }
-
+    existing = content.trim() ? JSON.parse(content) : [];
+    
   } catch (err) {
     if (err.response?.status === 404) {
-      console.log("🚨 anime.json not found — creating a new file.");
+      console.log("Creating new anime.json file");
     } else {
+      console.error("Error fetching existing data:", err.message);
       throw err;
     }
   }
 
-  // Create sets for duplicate checking
-  const existingIds = new Set();
-  const existingAnilistIds = new Set();
-  
-  // Process existing entries
+  // Deduplicate using both title and AniList ID
+  const existingKeys = new Set();
   existing.forEach(item => {
-    // Track our internal IDs
-    if (typeof item.id === "number") {
-      existingIds.add(item.id);
-    }
-    
-    // Track AniList IDs for new duplicate check
-    if (typeof item.anilistId === "number") {
-      existingAnilistIds.add(item.anilistId);
-    }
-    
-    // Backward compatibility: Track old entries without anilistId by title
-    if (!item.anilistId && item.title) {
-      existingAnilistIds.add(item.title);
-    }
+    existingKeys.add(item.title);
+    if (item.anilistId) existingKeys.add(`id:${item.anilistId}`);
   });
 
-  // Filter out duplicates from new data
   const newEntries = newAnimeList.filter(anime => {
-    // Check by AniList ID (new entries)
-    if (typeof anime.anilistId === "number") {
-      return !existingAnilistIds.has(anime.anilistId);
-    }
-    
-    // Fallback to title check (for backward compatibility)
-    return !existingAnilistIds.has(anime.title);
+    return !existingKeys.has(anime.title) && 
+           !existingKeys.has(`id:${anime.anilistId}`);
   });
 
   if (newEntries.length === 0) {
-    console.log("✅ No new anime to add.");
+    console.log("✅ No new anime to add");
     return 0;
   }
 
-  // Generate new IDs
-  const maxId = Math.max(0, ...Array.from(existingIds));
-  let currentId = maxId + 1;
+  // Add sequential IDs
+  const maxId = existing.reduce((max, item) => 
+    Math.max(max, item.id || 0), 0);
   
-  const entriesWithIds = newEntries.map(anime => ({
-    id: currentId++,
+  const entriesWithIds = newEntries.map((anime, i) => ({
+    id: maxId + i + 1,
     ...anime
   }));
 
-  // Create final dataset
   const finalData = [...existing, ...entriesWithIds];
-  const encoded = Buffer.from(JSON.stringify(finalData, null, 2)).toString("base64");
+  const content = JSON.stringify(finalData, null, 2);
+  const encoded = Buffer.from(content).toString("base64");
 
-  // Upload back to GitHub
   await axios.put(apiUrl, {
-    message: `🚀 Added ${entriesWithIds.length} new anime`,
+    message: `🚀 Added ${entriesWithIds.length} new anime entries`,
     content: encoded,
-    ...(sha ? { sha } : {})
+    sha: sha
   }, {
-    headers: { Authorization: `token ${token}` }
+    headers: {
+      Authorization: `token ${token}`,
+      "Content-Type": "application/json"
+    }
   });
 
-  console.log(`🔥 Added ${entriesWithIds.length} anime entries.`);
+  console.log(`🔥 Added ${entriesWithIds.length} new entries`);
   return entriesWithIds.length;
 }
