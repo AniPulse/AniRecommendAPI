@@ -2,31 +2,62 @@ import fs from "fs";
 import path from "path";
 
 export default function handler(req, res) {
-  const genre = decodeURIComponent(req.query.genre || "").toLowerCase();
+  try {
+    const genre = decodeURIComponent(req.query.genre || "").trim().toLowerCase();
 
-  const filePath = path.join(process.cwd(), "data", "anime.json");
-  const rawData = fs.readFileSync(filePath, "utf8");
-  const data = JSON.parse(rawData);
+    if (!genre) {
+      return res.status(400).json({
+        error: "❌ Genre query parameter is required. Example: /api/genre?genre=Action"
+      });
+    }
 
-  const filtered = data.filter(a =>
-    a.genres.map(g => g.toLowerCase()).includes(genre)
-  );
+    const dataDir = path.join(process.cwd(), "data");
 
-  const anime = filtered[Math.floor(Math.random() * filtered.length)];
+    // Read all files like anime.json, anime1.json, anime2.json...
+    const files = fs.readdirSync(dataDir).filter(
+      (file) => file.startsWith("anime") && file.endsWith(".json")
+    );
 
-  if (!anime) {
-    return res.status(404).json({ error: "Genre not found" });
+    let allAnime = [];
+
+    for (const file of files) {
+      const filePath = path.join(dataDir, file);
+      const rawData = fs.readFileSync(filePath, "utf8");
+
+      try {
+        const parsed = JSON.parse(rawData);
+        if (Array.isArray(parsed)) {
+          allAnime.push(...parsed);
+        }
+      } catch {
+        console.warn(`⚠️ Skipped invalid JSON in ${file}`);
+      }
+    }
+
+    const filtered = allAnime.filter((a) =>
+      Array.isArray(a.genres) &&
+      a.genres.map((g) => g.toLowerCase()).includes(genre)
+    );
+
+    if (!filtered.length) {
+      return res.status(404).json({ error: `❌ No anime found for genre: ${genre}` });
+    }
+
+    const anime = filtered[Math.floor(Math.random() * filtered.length)];
+
+    res.json({
+      ...anime,
+      creator: "Shinei Nouzen",
+      github: "https://github.com/Shineii86",
+      telegram: "https://telegram.me/Shineii86", // ✅ fixed
+      message: "Build with ❤️ by Shinei Nouzen",
+      timestamp: new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour12: true
+      })
+    });
+  } catch (err) {
+    console.error("🚫 Genre query parameter is required. Example: /api/genre?genre=Action);
+    res.status(500).json({ error: "🚨 Internal server error" });
   }
-
-  res.json({
-    ...anime,
-    creator: "Shinei Nouzen",
-    github: "https://github.com/Shineii86",
-    telegram: "https://telegran.me/Shineii86",
-    message: "Build with ❤️ by Shinei Nouzen",
-    timestamp: new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      hour12: true
-    })
-  });
 }
