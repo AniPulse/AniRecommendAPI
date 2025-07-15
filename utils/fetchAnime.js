@@ -2,7 +2,7 @@ import axios from "axios";
 
 const ANIME_QUERY = `
   query ($page: Int) {
-    Page(page: $page, perPage: 50) {
+    Page(page: $page, perPage: 500) {
       media(type: ANIME, sort: POPULARITY_DESC) {
         title { romaji native }
         description(asHtml: false)
@@ -63,7 +63,7 @@ async function fetchAnimePage(page) {
   }
 }
 
-export async function fetchMultipleAnimePages(startPage = 1, numPages = 100) {
+export async function fetchMultipleAnimePages(startPage = 1, numPages = 10) {
   let allAnime = [];
   let currentPage = startPage;
   let delay = 700;
