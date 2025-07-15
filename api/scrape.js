@@ -1,11 +1,10 @@
-// api/scrap.js
 import { fetchAnimeData } from "../utils/fetchAnime.js";
 import { updateAnimeJsonOnGitHub } from "../utils/updateGitHub.js";
 
 // Configure scraping parameters
-const MAX_PAGES = 50; // Reduced from 100 to prevent timeouts
-const DELAY_MS = 500; // Delay between requests to avoid rate limits
-const CONCURRENT_REQUESTS = 5; // Number of parallel requests
+const MAX_PAGES = 50;
+const DELAY_MS = 1000; // Increased delay to prevent rate limiting
+const CONCURRENT_REQUESTS = 3; // Reduced concurrency
 
 export default async function handler(req, res) {
   const key = req.query.key;
@@ -15,37 +14,42 @@ export default async function handler(req, res) {
 
   try {
     let allAnime = [];
-    const pageGroups = [];
+    let currentPage = 1;
+    let hasMore = true;
 
-    // Create page groups for concurrent fetching
-    for (let i = 1; i <= MAX_PAGES; i += CONCURRENT_REQUESTS) {
-      const group = [];
-      for (let j = 0; j < CONCURRENT_REQUESTS && i + j <= MAX_PAGES; j++) {
-        group.push(i + j);
-      }
-      pageGroups.push(group);
-    }
-
-    // Process page groups sequentially with delay
-    for (const [index, group] of pageGroups.entries()) {
+    while (hasMore && currentPage <= MAX_PAGES) {
       try {
-        const requests = group.map(page => fetchAnimeData(page));
+        const requests = [];
+        // Create batch of requests
+        for (let i = 0; i < CONCURRENT_REQUESTS; i++) {
+          if (currentPage <= MAX_PAGES) {
+            requests.push(fetchAnimeData(currentPage));
+            console.log(`🔄 Adding page ${currentPage} to batch`);
+            currentPage++;
+          }
+        }
+
+        // Process batch
         const results = await Promise.allSettled(requests);
         
-        results.forEach(result => {
+        // Process results
+        for (const result of results) {
           if (result.status === "fulfilled") {
-            allAnime.push(...result.value);
+            allAnime = [...allAnime, ...result.value];
+            console.log(`✅ Fetched ${result.value.length} anime`);
+          } else {
+            console.error("❌ Page failed:", result.reason.message);
           }
-        });
+        }
 
-        // Add delay between groups except last one
-        if (index < pageGroups.length - 1) {
+        // Add delay between batches
+        if (currentPage <= MAX_PAGES) {
+          console.log(`⏳ Waiting ${DELAY_MS}ms before next batch...`);
           await new Promise(resolve => setTimeout(resolve, DELAY_MS));
         }
-        
-        console.log(`✅ Processed pages ${group[0]}-${group[group.length-1]}`);
-      } catch (groupError) {
-        console.error(`🚨 Group error:`, groupError.message);
+      } catch (batchError) {
+        console.error("🚨 Batch error:", batchError.message);
+        hasMore = false;
       }
     }
 
@@ -59,7 +63,7 @@ export default async function handler(req, res) {
       stats: {
         total: allAnime.length,
         newEntries: added,
-        pagesProcessed: MAX_PAGES
+        pagesProcessed: currentPage - 1
       }
     });
   } catch (error) {
