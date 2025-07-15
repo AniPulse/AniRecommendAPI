@@ -7,7 +7,7 @@ export default function handler(req, res) {
     const rawData = fs.readFileSync(filePath, "utf8");
     let data = JSON.parse(rawData);
 
-    if (!Array.isArray(data)) throw new Error("🚧 anime.json Is Not A Valid Array");
+    if (!Array.isArray(data)) throw new Error("🚧 anime.json is not a valid array");
     data = data.flat();
 
     const withId = data.filter(a => typeof a.id === "number");
@@ -18,23 +18,26 @@ export default function handler(req, res) {
     if (idParam) {
       const requestedId = parseInt(idParam);
       if (isNaN(requestedId)) {
-        return res.status(400).json({ error: "🚨 Invalid ID. Must Be A Number." });
+        return res.status(400).json({ error: "🚨 Invalid ID. Must be a number." });
       }
 
       anime = withId.find(a => a.id === requestedId);
       if (!anime) {
-        return res.status(404).json({ error: `🔎 No Anime Found With ID ${requestedId}` });
+        return res.status(404).json({ error: `🔎 No anime found with ID ${requestedId}` });
       }
     } else {
-      // Random anime with ID
+      // Return random anime with ID
       anime = withId[Math.floor(Math.random() * withId.length)];
     }
 
+    // Remove images from the response
+    const { images, ...cleanAnime } = anime;
+
     res.status(200).json({
-      ...anime,
+      ...cleanAnime,
       creator: "Shinei Nouzen",
       github: "https://github.com/Shineii86",
-      telegram: "https://telegran.me/Shineii86",
+      telegram: "https://telegram.me/Shineii86",
       message: "Build with ❤️ by Shinei Nouzen",
       timestamp: new Date().toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
