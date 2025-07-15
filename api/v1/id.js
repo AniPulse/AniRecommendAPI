@@ -3,14 +3,34 @@ import path from "path";
 
 export default function handler(req, res) {
   try {
-    const filePath = path.join(process.cwd(), "data", "anime.json");
-    const rawData = fs.readFileSync(filePath, "utf8");
-    let data = JSON.parse(rawData);
+    const dataDir = path.join(process.cwd(), "data");
 
-    if (!Array.isArray(data)) throw new Error("🚧 anime.json is not a valid array");
-    data = data.flat();
+    // Read all anime*.json files
+    const files = fs.readdirSync(dataDir).filter(
+      (file) => file.startsWith("anime") && file.endsWith(".json")
+    );
 
-    const withId = data.filter(a => typeof a.id === "number");
+    let allAnime = [];
+
+    for (const file of files) {
+      const filePath = path.join(dataDir, file);
+      const rawData = fs.readFileSync(filePath, "utf8");
+
+      try {
+        const parsed = JSON.parse(rawData);
+        if (Array.isArray(parsed)) {
+          allAnime.push(...parsed);
+        }
+      } catch (e) {
+        console.warn(`⚠️ Skipping invalid JSON in ${file}`);
+      }
+    }
+
+    if (!allAnime.length) {
+      return res.status(404).json({ error: "🚨 No anime data found." });
+    }
+
+    const withId = allAnime.filter(a => typeof a.id === "number");
     const idParam = req.query.id;
 
     let anime;
@@ -26,11 +46,10 @@ export default function handler(req, res) {
         return res.status(404).json({ error: `🔎 No anime found with ID ${requestedId}` });
       }
     } else {
-      // Return random anime with ID
+      // Random anime with ID
       anime = withId[Math.floor(Math.random() * withId.length)];
     }
 
-    // Remove images from the response
     const { images, ...cleanAnime } = anime;
 
     res.status(200).json({
@@ -41,7 +60,7 @@ export default function handler(req, res) {
       message: "Build with ❤️ by Shinei Nouzen",
       timestamp: new Date().toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
-        hour12: true
+        hour12: true,
       })
     });
 
