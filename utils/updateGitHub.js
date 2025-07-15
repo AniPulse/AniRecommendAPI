@@ -18,58 +18,38 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
 
     sha = data.sha;
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
-    existing = content.trim() ? JSON.parse(content) : [];
-    
+    const parsed = content.trim() ? JSON.parse(content) : [];
+    existing = Array.isArray(parsed) ? parsed.flat() : [];
   } catch (err) {
-    if (err.response?.status === 404) {
-      console.log("Creating new anime.json file");
-    } else {
-      console.error("Error fetching existing data:", err.message);
-      throw err;
-    }
+    if (err.response?.status !== 404) throw err;
+    console.log("📁 anime.json not found. Creating new file.");
   }
 
-  // Deduplicate using both title and AniList ID
-  const existingKeys = new Set();
-  existing.forEach(item => {
-    existingKeys.add(item.title);
-    if (item.anilistId) existingKeys.add(`id:${item.anilistId}`);
-  });
+  const existingTitles = new Set(existing.map((a) => a.title));
+  const maxId = existing.reduce((max, a) => (a.id > max ? a.id : max), 0);
 
-  const newEntries = newAnimeList.filter(anime => {
-    return !existingKeys.has(anime.title) && 
-           !existingKeys.has(`id:${anime.anilistId}`);
-  });
-
-  if (newEntries.length === 0) {
-    console.log("✅ No new anime to add");
+  const newRaw = newAnimeList.filter((a) => !existingTitles.has(a.title));
+  if (newRaw.length === 0) {
+    console.log("✅ No new anime to add.");
     return 0;
   }
 
-  // Add sequential IDs
-  const maxId = existing.reduce((max, item) => 
-    Math.max(max, item.id || 0), 0);
-  
-  const entriesWithIds = newEntries.map((anime, i) => ({
+  const newEntries = newRaw.map((anime, i) => ({
     id: maxId + i + 1,
-    ...anime
+    ...anime,
   }));
 
-  const finalData = [...existing, ...entriesWithIds];
-  const content = JSON.stringify(finalData, null, 2);
-  const encoded = Buffer.from(content).toString("base64");
+  const finalData = [...existing, ...newEntries];
+  const encoded = Buffer.from(JSON.stringify(finalData, null, 2)).toString("base64");
 
   await axios.put(apiUrl, {
-    message: `🚀 Added ${entriesWithIds.length} new anime entries`,
+    message: `🚀 Added ${newEntries.length} new anime`,
     content: encoded,
-    sha: sha
+    ...(sha ? { sha } : {}),
   }, {
-    headers: {
-      Authorization: `token ${token}`,
-      "Content-Type": "application/json"
-    }
+    headers: { Authorization: `token ${token}` },
   });
 
-  console.log(`🔥 Added ${entriesWithIds.length} new entries`);
-  return entriesWithIds.length;
+  console.log(`🔥 Added ${newEntries.length} anime entries.`);
+  return newEntries.length;
 }
