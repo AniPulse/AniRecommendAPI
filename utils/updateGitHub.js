@@ -11,7 +11,7 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
   let existing = [];
   let sha = null;
 
-  // 1. Get existing data
+  // Fetch existing anime.json file from GitHub
   try {
     const { data } = await axios.get(apiUrl, {
       headers: { Authorization: `token ${token}` },
@@ -21,62 +21,81 @@ export async function updateAnimeJsonOnGitHub(newAnimeList) {
     const content = Buffer.from(data.content || "", "base64").toString("utf-8");
 
     try {
-      existing = content.trim() ? JSON.parse(content) : [];
-    } catch {
-      console.warn("⚠️ anime.json is not valid. Starting with empty array.");
+      const parsed = content.trim() ? JSON.parse(content) : [];
+      existing = Array.isArray(parsed) ? parsed.flat() : [];
+    } catch (e) {
+      console.warn("⚠️ Warning: anime.json is not valid JSON. Starting fresh.");
       existing = [];
     }
+
   } catch (err) {
     if (err.response?.status === 404) {
-      console.log("📁 anime.json not found. Will create it.");
+      console.log("🚨 anime.json not found — creating a new file.");
     } else {
       throw err;
     }
   }
 
-  // 2. Create map of existing _key to avoid duplicates
-  const existingMap = new Map(existing.map((anime) => [anime._key, anime]));
-
-  // 3. Merge new anime (add only if _key is not already present)
-  let added = 0;
-  for (const anime of newAnimeList) {
-    if (!existingMap.has(anime._key)) {
-      existingMap.set(anime._key, anime);
-      added++;
+  // Create sets for duplicate checking
+  const existingIds = new Set();
+  const existingAnilistIds = new Set();
+  
+  // Process existing entries
+  existing.forEach(item => {
+    // Track our internal IDs
+    if (typeof item.id === "number") {
+      existingIds.add(item.id);
     }
-  }
+    
+    // Track AniList IDs for new duplicate check
+    if (typeof item.anilistId === "number") {
+      existingAnilistIds.add(item.anilistId);
+    }
+    
+    // Backward compatibility: Track old entries without anilistId by title
+    if (!item.anilistId && item.title) {
+      existingAnilistIds.add(item.title);
+    }
+  });
 
-  if (added === 0) {
-    console.log("✅ No new anime to add. All are duplicates.");
+  // Filter out duplicates from new data
+  const newEntries = newAnimeList.filter(anime => {
+    // Check by AniList ID (new entries)
+    if (typeof anime.anilistId === "number") {
+      return !existingAnilistIds.has(anime.anilistId);
+    }
+    
+    // Fallback to title check (for backward compatibility)
+    return !existingAnilistIds.has(anime.title);
+  });
+
+  if (newEntries.length === 0) {
+    console.log("✅ No new anime to add.");
     return 0;
   }
 
-  // 4. Assign IDs based on existing highest ID
-  const allAnime = Array.from(existingMap.values());
-  const maxId = allAnime.reduce((max, a) => (a.id > max ? a.id : max), 0);
-  let nextId = maxId + 1;
+  // Generate new IDs
+  const maxId = Math.max(0, ...Array.from(existingIds));
+  let currentId = maxId + 1;
+  
+  const entriesWithIds = newEntries.map(anime => ({
+    id: currentId++,
+    ...anime
+  }));
 
-  for (const anime of allAnime) {
-    if (!anime.id) {
-      anime.id = nextId++;
-    }
-  }
+  // Create final dataset
+  const finalData = [...existing, ...entriesWithIds];
+  const encoded = Buffer.from(JSON.stringify(finalData, null, 2)).toString("base64");
 
-  // 5. Save final merged list back to GitHub
-  const finalEncoded = Buffer.from(JSON.stringify(allAnime, null, 2)).toString("base64");
+  // Upload back to GitHub
+  await axios.put(apiUrl, {
+    message: `🚀 Added ${entriesWithIds.length} new anime`,
+    content: encoded,
+    ...(sha ? { sha } : {})
+  }, {
+    headers: { Authorization: `token ${token}` }
+  });
 
-  await axios.put(
-    apiUrl,
-    {
-      message: `✨ Added ${added} new anime entries`,
-      content: finalEncoded,
-      ...(sha ? { sha } : {}),
-    },
-    {
-      headers: { Authorization: `token ${token}` },
-    }
-  );
-
-  console.log(`🔥 Added ${added} new anime. Total: ${allAnime.length}`);
-  return added;
+  console.log(`🔥 Added ${entriesWithIds.length} anime entries.`);
+  return entriesWithIds.length;
 }
